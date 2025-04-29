@@ -13,7 +13,7 @@ const checkUser = async () => {
 
         if (loggedInUser) return loggedInUser
 
-        const name = `${user.firstName} ${user.lastName}`
+        const name = `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim();
 
         const newUser = await prisma.user.create({
             data: {
@@ -26,8 +26,9 @@ const checkUser = async () => {
 
         return newUser;
 
-    } catch (error: any) {
-        console.error(error.message);
+    } catch (error) {
+        console.error((error as Error).message);
+        return null
     }
 }
 
