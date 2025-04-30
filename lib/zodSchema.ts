@@ -7,7 +7,7 @@ export const accountSchema = z.object({
     isDefault: z.boolean().default(false)
 })
 
-export type AccountSchema = z.infer<typeof accountSchema>
+export type AccountSchemaType = z.infer<typeof accountSchema>
 
 // z.infer<typeof accountSchema> is a powerful feature of Zod.
 // It extracts the TypeScript type from your schema automatically.
