@@ -1,24 +1,22 @@
 import { useState } from "react";
 import { toast } from "sonner";
 
-type AsyncFunction<TArgs extends any[], TReturn> = (...args: TArgs) => Promise<TReturn>;
+const useFetch = (cb: any) => {
+    const [data, setData] = useState("");
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
 
-const useFetch = <TArgs extends any[], TReturn>(cb: AsyncFunction<TArgs, TReturn>) => {
-    const [data, setData] = useState<TReturn | undefined>(undefined);
-    const [loading, setLoading] = useState<boolean | null>(null);
-    const [error, setError] = useState<Error | null>(null);
-
-    const fn = async (...args: TArgs): Promise<void> => {
+    const fn = async (...args: any[]) => {
         setLoading(true);
         setError(null);
 
         try {
             const response = await cb(...args);
             setData(response);
-        } catch (err: any) {
-            const error = err instanceof Error ? err : new Error("Unknown error");
+            setError(null);
+        } catch (e) {
             setError(error);
-            toast.error(error.message);
+            toast.error((e as Error).message);
         } finally {
             setLoading(false);
         }
