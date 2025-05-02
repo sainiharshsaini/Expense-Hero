@@ -12,7 +12,8 @@ interface AccountPageProps {
 
 const AccountPage = async ({ params }: AccountPageProps) => {
     const accountData = await getAccountWithTransactions(params.id)
-
+    console.log(accountData);
+    
     if (!accountData) {
         notFound();
     }
