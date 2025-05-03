@@ -24,7 +24,6 @@ import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
-    DropdownMenuLabel,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -115,7 +114,7 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ transactions }) => 
 
             switch (sortConfig.field) {
                 case "date":
-                    comparison = new Date(a.date) - new Date(b.date);
+                    comparison = new Date(a.date).getTime() - new Date(b.date).getTime();
                     break;
                 case "amount":
                     comparison = a.amount - b.amount;
@@ -179,6 +178,7 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ transactions }) => 
         if (deleted && !deleteLoading) {
             toast.error("Transactions deleted successfully");
         }
+        
     }, [deleted, deleteLoading]);
 
     const handleClearFilters = () => {

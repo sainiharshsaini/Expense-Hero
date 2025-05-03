@@ -72,7 +72,7 @@ export async function getAccountWithTransactions(accountId: string) {
     }
 }
 
-export async function bulkDeleteTransactions(transactionIds) {
+export async function bulkDeleteTransactions(transactionIds: string[]): Promise<{ success: boolean; error?: string }> {
     try {
         const { userId } = await auth();
         if (!userId) throw new Error("Unauthorized");
@@ -83,7 +83,7 @@ export async function bulkDeleteTransactions(transactionIds) {
 
         if (!user) throw new Error("User not found");
 
-        // Get transactions to calculate balance changes
+        // Step 1: Get the transactions to be deleted
         const transactions = await prisma.transaction.findMany({
             where: {
                 id: { in: transactionIds },
@@ -91,19 +91,15 @@ export async function bulkDeleteTransactions(transactionIds) {
             },
         });
 
-        // Group transactions by account to update balances
-        const accountBalanceChanges = transactions.reduce((acc, transaction) => {
-            const change =
-                transaction.type === "EXPENSE"
-                    ? transaction.amount
-                    : -transaction.amount;
+        // Step 2: Calculate balance changes per account
+        const accountBalanceChanges: Record<string, number> = transactions.reduce((acc, transaction) => {
+            const change = transaction.type === "EXPENSE" ? transaction.amount : -transaction.amount;
             acc[transaction.accountId] = (acc[transaction.accountId] || 0) + change;
             return acc;
-        }, {});
+        }, {} as Record<string, number>);
 
-        // Delete transactions and update account balances in a transaction
+        // Step 3: Perform deletion and balance updates in a transaction
         await prisma.$transaction(async (tx) => {
-            // Delete transactions
             await tx.transaction.deleteMany({
                 where: {
                     id: { in: transactionIds },
@@ -112,9 +108,7 @@ export async function bulkDeleteTransactions(transactionIds) {
             });
 
             // Update account balances
-            for (const [accountId, balanceChange] of Object.entries(
-                accountBalanceChanges
-            )) {
+            for (const [accountId, balanceChange] of Object.entries(accountBalanceChanges)) {
                 await tx.account.update({
                     where: { id: accountId },
                     data: {
@@ -126,6 +120,7 @@ export async function bulkDeleteTransactions(transactionIds) {
             }
         });
 
+        // Step 4: Revalidate paths
         revalidatePath("/dashboard");
         revalidatePath("/account/[id]");
 

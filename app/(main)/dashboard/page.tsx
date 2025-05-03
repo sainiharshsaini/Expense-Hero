@@ -6,12 +6,36 @@ import {
 } from "@/components/ui/card"
 import { Plus } from "lucide-react"
 import AccountCard from "./_components/AccountCard"
-
+import { getCurrentBudget } from "@/actions/budget"
+import BudgetProgress from "./_components/BudgetProgress"
 
 const DashboardPage = async () => {
     const accounts = await getUserAccounts();
+
+    const defaultAccount = accounts?.find((account) => account.isDefault);
+
+    let budgetData: { budget: { id: string; userId: string; amount: number } | null; currentExpenses: number } | null = null
+
+    if (defaultAccount) {
+        budgetData = await getCurrentBudget(defaultAccount.id)
+    }
+
     return (
-        <div className="px-5">
+        <div className="space-y-8">
+            {/* Budget Progress */}
+            {defaultAccount && (<BudgetProgress
+                initialBudget={budgetData?.budget || null}
+                currentExpenses={budgetData?.currentExpenses || 0}
+            />)}
+
+            {/* Dashboard Overview */}
+            {/* <DashboardOverview
+                accounts={accounts}
+                transactions={transactions || []}
+            /> */}
+
+            {/* Accounts Grid */}
+
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 <CreateAccountDrawer>
                     <Card className="hover:shadow-md transition-shadow cursor-pointer border-dashed">
