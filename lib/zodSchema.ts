@@ -12,3 +12,28 @@ export type AccountSchemaType = z.infer<typeof accountSchema>
 // z.infer<typeof accountSchema> is a powerful feature of Zod.
 // It extracts the TypeScript type from your schema automatically.
 // This means you don't have to manually write the type interface — Zod generates it for you.
+
+
+export const transactionSchema = z.object({
+    type: z.enum(["INCOME", "EXPENSE"]),
+    amount: z.string().min(1, "Amount is required"),
+    description: z.string().optional(),
+    date: z.date({ required_error: "Date is required" }),
+    accountId: z.string().min(1, "Account is required"),
+    category: z.string().min(1, "Category is required"),
+    isRecurring: z.boolean().default(false),
+    recurringInterval: z
+        .enum(["DAILY", "WEEKLY", "MONTHLY", "YEARLY"])
+        .optional(),
+})
+    .superRefine((data, ctx) => {
+        if (data.isRecurring && !data.recurringInterval) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: "Recurring interval is required for recurring transactions",
+                path: ["recurringInterval"],
+            });
+        }
+    });
+
+export type TransactionSchemaType = z.infer<typeof transactionSchema>
