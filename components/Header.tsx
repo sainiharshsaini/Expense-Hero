@@ -16,7 +16,7 @@ const Header = async () => {
 
     return (
         <header className='fixed top-0 border-b backdrop-blur-md w-full z-50 bg-white/80'>
-            <nav className='container mx-auto py-4 px-8 flex items-center justify-between'>
+            <nav className='container mx-auto py-4 px-12 flex items-center justify-between'>
                 <Link href="/">
                     <h1 className='text-2xl font-bold gradient-title '>ExpenseHero</h1>
                     {/* <Image src="" alt='ExpenseHero logo' height={60} width={200} className="h-12 w-auto object-contain"/> */}
@@ -39,10 +39,10 @@ const Header = async () => {
                     </SignedIn>
                     <SignedOut>
                         <SignInButton forceRedirectUrl="/dashboard">
-                            <Button variant="outline">Login</Button>
+                            <Button variant="ghost" className='cursor-pointer hover:rounded-full p-6'>Login</Button>
                         </SignInButton>
                         <SignUpButton forceRedirectUrl="/signin">
-                            <Button className='bg-gradient-to-br from-blue-600 to-purple-600'>SignUp</Button>
+                            <Button className='hover:brightness-110 transition duration-200 shadow-md hover:shadow-lg rounded-full p-6 cursor-pointer bg-gradient-to-r from-indigo-600 to-emerald-500'>Sign up</Button>
                         </SignUpButton>
                     </SignedOut>
                 </div>
