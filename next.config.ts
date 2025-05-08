@@ -6,6 +6,9 @@ const nextConfig: NextConfig = {
     serverActions: {
       bodySizeLimit: "5mb"
     }
+  },
+  images: { // we did it 
+    remotePatterns:[new URL('https://randomuser.me/api/portraits/**')]
   }
 };
 

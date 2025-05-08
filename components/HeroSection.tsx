@@ -9,7 +9,7 @@ import Image from 'next/image'
 const HeroSection = () => {
     return (
         <section className='min-h-screen flex items-center justify-center text-center md:text-start'>
-            <div className="max-w-7xl w-full flex flex-col md:flex-row items-center justify-between gap-8 py-25">
+            <div className="max-w-7xl w-full flex flex-col md:flex-row items-center justify-between gap-8 pt-32 pb-25 px-6">
 
                 {/* Left hero content */}
                 <div className='flex-1 justify-center items-center'>
