@@ -7,7 +7,7 @@ export const authRequired = async () => {
         headers: await headers()
     })
 
-    if (!session) redirect("/login");
+    if (!session) redirect("/sign-in");
 
     return session;
 }

@@ -1,11 +1,9 @@
 "use server";
 
-import { auth } from "@clerk/nextjs/server";
 import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-// import aj from "@/lib/arcjet";
-// import { request } from "@arcjet/next";
+import { authRequired } from "@/lib/auth/auth-utils";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
@@ -24,41 +22,16 @@ interface CreateTransactionData {
     isRecurring?: boolean;
     recurringInterval?: "DAILY" | "WEEKLY" | "MONTHLY" | "YEARLY";
 }
+
 export async function createTransaction(data: CreateTransactionData) {
     try {
-        const { userId } = await auth();
-        if (!userId) {
-            throw new Error("You must be logged in to create a transaction");
-        }
+        const session = await authRequired();
+        const userId = session.user.id;
 
-        // try {
-        //     const req = await request();
-        //     const decision = await aj.protect(req, {
-        //         requested: 1,
-        //     });
-
-        //     if (decision.isDenied()) {
-        //         if (decision.reason.isRateLimit()) {
-        //             throw new Error("Too many requests. Please wait a moment and try again.");
-        //         }
-        //         throw new Error("Request blocked. Please try again.");
-        //     }
-        // } catch (rateLimitError) {
-        //     console.warn("Rate limiting check failed:", rateLimitError);
-        // }
-
-        const user = await prisma.user.findUnique({
-            where: { clerkUserId: userId },
-        });
-
-        if (!user) {
-            throw new Error("User account not found. Please try logging in again.");
-        }
-
-        const account = await prisma.account.findUnique({
+        const account = await prisma.financialAccount.findUnique({
             where: {
                 id: data.accountId,
-                userId: user.id,
+                userId,
             },
         });
 
@@ -72,14 +45,14 @@ export async function createTransaction(data: CreateTransactionData) {
             const newTransaction = await tx.transaction.create({
                 data: {
                     ...data,
-                    userId: user.id,
+                    userId,
                     nextRecurringDate: data.isRecurring && data.recurringInterval
                         ? calculateNextRecurringDate(data.date, data.recurringInterval)
                         : null,
                 },
             });
 
-            await tx.account.update({
+            await tx.financialAccount.update({
                 where: { id: data.accountId },
                 data: { balance: newBalance },
             });
@@ -90,9 +63,9 @@ export async function createTransaction(data: CreateTransactionData) {
         revalidatePath("/dashboard");
         revalidatePath(`/account/${transaction.accountId}`);
 
-        return { 
-            success: true, 
-            data: serializeAmount(transaction) 
+        return {
+            success: true,
+            data: serializeAmount(transaction)
         };
     } catch (error) {
         const errorMessage = error instanceof Error ? error.message : "Failed to create transaction";
@@ -101,19 +74,13 @@ export async function createTransaction(data: CreateTransactionData) {
 }
 
 export async function getTransaction(id: any) {
-    const { userId } = await auth();
-    if (!userId) throw new Error("Unauthorized");
-
-    const user = await prisma.user.findUnique({
-        where: { clerkUserId: userId },
-    });
-
-    if (!user) throw new Error("User not found");
+    const session = await authRequired();
+    const userId = session.user.id;
 
     const transaction = await prisma.transaction.findUnique({
         where: {
             id,
-            userId: user.id,
+            userId,
         },
     });
 
@@ -124,20 +91,14 @@ export async function getTransaction(id: any) {
 
 export async function updateTransaction(id: any, data: any) {
     try {
-        const { userId } = await auth();
-        if (!userId) throw new Error("Unauthorized");
-
-        const user = await prisma.user.findUnique({
-            where: { clerkUserId: userId },
-        });
-
-        if (!user) throw new Error("User not found");
+        const session = await authRequired();
+        const userId = session.user.id;
 
         // Get original transaction to calculate balance change
         const originalTransaction = await prisma.transaction.findUnique({
             where: {
                 id,
-                userId: user.id,
+                userId,
             },
             include: {
                 account: true,
@@ -162,7 +123,7 @@ export async function updateTransaction(id: any, data: any) {
             const updated = await tx.transaction.update({
                 where: {
                     id,
-                    userId: user.id,
+                    userId,
                 },
                 data: {
                     ...data,
@@ -174,7 +135,7 @@ export async function updateTransaction(id: any, data: any) {
             });
 
             // Update account balance
-            await tx.account.update({
+            await tx.financialAccount.update({
                 where: { id: data.accountId },
                 data: {
                     balance: {
@@ -198,20 +159,12 @@ export async function updateTransaction(id: any, data: any) {
 // Get User Transactions
 export async function getUserTransactions(query = {}) {
     try {
-        const { userId } = await auth();
-        if (!userId) throw new Error("Unauthorized");
-
-        const user = await prisma.user.findUnique({
-            where: { clerkUserId: userId },
-        });
-
-        if (!user) {
-            throw new Error("User not found");
-        }
+        const session = await authRequired();
+        const userId = session.user.id;
 
         const transactions = await prisma.transaction.findMany({
             where: {
-                userId: user.id,
+                userId,
                 ...query,
             },
             include: {
@@ -290,7 +243,7 @@ export async function scanReceipt(file: File): Promise<ScannedReceiptData> {
 
         // Parse the JSON response
         const data = JSON.parse(cleanedText);
-        
+
         // Validate the response
         if (!data.amount || !data.date || !data.category) {
             throw new Error("Could not extract all required information from the receipt");
@@ -306,7 +259,7 @@ export async function scanReceipt(file: File): Promise<ScannedReceiptData> {
 
     } catch (error) {
         console.error("Error scanning receipt:", error);
-        
+
         // Return user-friendly error message
         if (error instanceof Error) {
             throw new Error(`Failed to scan receipt: ${error.message}`);

@@ -2,6 +2,7 @@ import { getUserAccounts, SerializedAccount } from "@/actions/dashboard";
 import { defaultCategories } from "@/data/categories";
 import { AddTransactionForm } from "../_components/AddTransactionForm";
 import { getTransaction } from "@/actions/transaction";
+import { authRequired } from "@/lib/auth/auth-utils";
 
 // Simple interface for search params
 interface SearchParams {
@@ -13,6 +14,8 @@ interface PageProps {
 }
 
 export default async function AddTransactionPage({ searchParams }: PageProps) {
+    await authRequired();
+
     const accounts: SerializedAccount[] = await getUserAccounts();
     const { edit: editId } = await searchParams;
 

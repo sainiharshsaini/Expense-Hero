@@ -85,11 +85,11 @@ const RegisterForm = () => {
 
                   <FormField
                     control={form.control}
-                    name="confirmPassword"
+                    name="password"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>
-                          Confirm Password
+                          Password
                         </FormLabel>
                         <FormControl>
                           <Input
@@ -105,11 +105,11 @@ const RegisterForm = () => {
 
                   <FormField
                     control={form.control}
-                    name="password"
+                    name="confirmPassword"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>
-                          Password
+                          Confirm Password
                         </FormLabel>
                         <FormControl>
                           <Input
@@ -160,4 +160,4 @@ const RegisterForm = () => {
   )
 }
 
-export default RegisterForm
+export default RegisterForm;

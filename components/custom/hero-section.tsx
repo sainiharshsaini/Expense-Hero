@@ -21,7 +21,7 @@ const HeroSection = () => {
                     </p>
                     <div className='flex items-center justify-center md:justify-start gap-4 mb-6'>
                         <Link href={"/dashboard"}>
-                            <Button size={"lg"} className='bg-gradient-to-r from-indigo-600 to-emerald-500 text-white p-6 rounded-full font-semibold hover:brightness-110 transition'>
+                            <Button size={"lg"} className='bg-linear-to-r from-indigo-600 to-emerald-500 text-white p-6 rounded-full font-semibold hover:brightness-110 transition'>
                                 Get Started
                                 <ChevronRight className='bg-white text-black/80 rounded-full size-6'/>
                             </Button>

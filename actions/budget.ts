@@ -1,25 +1,17 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
+import { authRequired } from "@/lib/auth/auth-utils";
 
 export async function getCurrentBudget(accountId: string): Promise<{ budget: { id: string; userId: string; amount: number } | null; currentExpenses: number }> {
     try {
-        const { userId } = await auth();
-        if (!userId) throw new Error("Unauthorized");
-
-        const user = await prisma.user.findUnique({
-            where: { clerkUserId: userId },
-        });
-
-        if (!user) {
-            throw new Error("User not found");
-        }
+        const session = await authRequired();
+        const userId = session.user.id;
 
         const budget = await prisma.budget.findFirst({
             where: {
-                userId: user.id,
+                userId,
             },
         });
 
@@ -38,7 +30,7 @@ export async function getCurrentBudget(accountId: string): Promise<{ budget: { i
 
         const expenses = await prisma.transaction.aggregate({
             where: {
-                userId: user.id,
+                userId,
                 type: "EXPENSE",
                 date: {
                     gte: startOfMonth,
@@ -65,25 +57,19 @@ export async function getCurrentBudget(accountId: string): Promise<{ budget: { i
 
 export async function updateBudget(amount: number): Promise<| { success: true; data: { id: string; userId: string; amount: number; } } | { success: false; error: string; }> {
     try {
-        const { userId } = await auth();
-        if (!userId) throw new Error("Unauthorized");
-
-        const user = await prisma.user.findUnique({
-            where: { clerkUserId: userId },
-        });
-
-        if (!user) throw new Error("User not found");
+        const session = await authRequired();
+        const userId = session.user.id;
 
         // Update or create budget
         const budget = await prisma.budget.upsert({
             where: {
-                userId: user.id,
+                userId,
             },
             update: {
                 amount,
             },
             create: {
-                userId: user.id,
+                userId,
                 amount,
             },
         });

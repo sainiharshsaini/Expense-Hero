@@ -1,6 +1,6 @@
 "use server"
 
-import { auth } from "@clerk/nextjs/server";
+import { authRequired } from "@/lib/auth/auth-utils";
 import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 
@@ -10,27 +10,21 @@ const serializeTransaction = (obj: any) => {
     if (obj.balance) serialized.balance = obj.balance.toNumber();
     if (obj.amount) serialized.amount = obj.amount.toNumber();
 
-    return serialized
+    return serialized;
 }
 
 export async function updateDefaultAccount(accountId: string) {
     try {
-        const { userId } = await auth();
-        if (!userId) throw new Error("Unauthorized");
+        const session = await authRequired();
+        const userId = session.user.id;
 
-        const user = await prisma.user.findUnique({
-            where: { clerkUserId: userId },
-        });
-
-        if (!user) throw new Error("User not found");
-
-        await prisma.account.updateMany({
-            where: { userId: user.id, isDefault: true },
+        await prisma.financialAccount.updateMany({
+            where: { userId, isDefault: true },
             data: { isDefault: false }
         })
 
-        const account = await prisma.account.update({
-            where: { id: accountId, userId: user.id },
+        const account = await prisma.financialAccount.update({
+            where: { id: accountId, userId },
             data: { isDefault: true }
         })
 
@@ -43,17 +37,11 @@ export async function updateDefaultAccount(accountId: string) {
 }
 
 export async function getAccountWithTransactions(accountId: string) {
-    const { userId } = await auth();
-    if (!userId) throw new Error("Unauthorized");
+    const session = await authRequired();
+    const userId = session.user.id;
 
-    const user = await prisma.user.findUnique({
-        where: { clerkUserId: userId },
-    });
-
-    if (!user) throw new Error("User not found");
-
-    const account = await prisma.account.findUnique({
-        where: { id: accountId, userId: user.id },
+    const account = await prisma.financialAccount.findUnique({
+        where: { id: accountId, userId },
         include: {
             transactions: {
                 orderBy: { date: "desc" },
@@ -74,20 +62,13 @@ export async function getAccountWithTransactions(accountId: string) {
 
 export async function bulkDeleteTransactions(transactionIds: string[]): Promise<{ success: boolean; error?: string }> {
     try {
-        const { userId } = await auth();
-        if (!userId) throw new Error("Unauthorized");
+        const session = await authRequired();
+        const userId = session.user.id;
 
-        const user = await prisma.user.findUnique({
-            where: { clerkUserId: userId },
-        });
-
-        if (!user) throw new Error("User not found");
-
-        // Get the transactions to be deleted
         const transactions = await prisma.transaction.findMany({
             where: {
                 id: { in: transactionIds },
-                userId: user.id,
+                userId,
             },
         });
 
@@ -106,13 +87,13 @@ export async function bulkDeleteTransactions(transactionIds: string[]): Promise<
             await tx.transaction.deleteMany({
                 where: {
                     id: { in: transactionIds },
-                    userId: user.id,
+                    userId,
                 },
             });
 
             // Update account balances
             for (const [accountId, balanceChange] of Object.entries(accountBalanceChanges)) {
-                await tx.account.update({
+                await tx.financialAccount.update({
                     where: { id: accountId },
                     data: {
                         balance: {
@@ -123,7 +104,6 @@ export async function bulkDeleteTransactions(transactionIds: string[]): Promise<
             }
         });
 
-        // Step 4: Revalidate paths
         revalidatePath("/dashboard");
         revalidatePath("/account/[id]");
 

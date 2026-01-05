@@ -1,8 +1,8 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
+import { authRequired } from "@/lib/auth/auth-utils";
 
 export type SerializedAccount = {
     id: string;
@@ -40,36 +40,30 @@ interface CreateAccountResponse {
 
 export async function createAccount(data: CreateAccountInput): Promise<CreateAccountResponse> {
     try {
-        const { userId } = await auth();
-        if (!userId) throw new Error("Unauthorized");
-
-        const user = await prisma.user.findUnique({
-            where: { clerkUserId: userId },
-        });
-
-        if (!user) throw new Error("User not found");
+        const session = await authRequired();
+        const userId = session.user.id;
 
         const balanceFloat = parseFloat(data.balance);
         if (isNaN(balanceFloat)) throw new Error("Invalid balance amount");
 
         const existingAccounts = await prisma.account.findMany({
-            where: { userId: user.id },
+            where: { userId },
         });
 
         const shouldBeDefault = existingAccounts.length === 0 || data.isDefault;
 
         if (shouldBeDefault) {
-            await prisma.account.updateMany({
-                where: { userId: user.id, isDefault: true },
+            await prisma.financialAccount.updateMany({
+                where: { userId, isDefault: true },
                 data: { isDefault: false },
             });
         }
 
-        const account = await prisma.account.create({
+        const account = await prisma.financialAccount.create({
             data: {
                 ...data,
                 balance: balanceFloat,
-                userId: user.id,
+                userId,
                 isDefault: shouldBeDefault,
             },
         });
@@ -87,17 +81,11 @@ export async function createAccount(data: CreateAccountInput): Promise<CreateAcc
 
 
 export async function getUserAccounts(): Promise<SerializedAccount[]> {
-    const { userId } = await auth();
-    if (!userId) throw new Error("Unauthorized");
+    const session = await authRequired();
+    const userId = session.user.id;
 
-    const user = await prisma.user.findUnique({
-        where: { clerkUserId: userId },
-    });
-
-    if (!user) throw new Error("User not found");
-
-    const accounts = await prisma.account.findMany({
-        where: { userId: user.id },
+    const accounts = await prisma.financialAccount.findMany({
+        where: { userId },
         orderBy: { createdAt: "desc" },
         include: {
             _count: {
@@ -140,22 +128,14 @@ const serializeTransactionData = (obj: any): SerializedTransaction => {
 };
 
 export async function getDashboardData(): Promise<SerializedTransaction[]> {
-    const { userId } = await auth();
-    if (!userId) throw new Error("Unauthorized");
-  
-    const user = await prisma.user.findUnique({
-      where: { clerkUserId: userId },
-    });
-  
-    if (!user) {
-      throw new Error("User not found");
-    }
-  
+    const session = await authRequired();
+    const userId = session.user.id;
+
     // Get all user transactions
     const transactions = await prisma.transaction.findMany({
-      where: { userId: user.id },
-      orderBy: { date: "desc" },
+        where: { userId },
+        orderBy: { date: "desc" },
     });
-  
+
     return transactions.map(serializeTransactionData);
 }
