@@ -1,19 +1,22 @@
-import { getAccountWithTransactions } from "@/actions/account"
-import { notFound } from "next/navigation"
-import { Suspense } from "react"
-import { BarLoader } from "react-spinners"
-import TransactionTable from "../_components/TransactionTable"
-import AccountChart from "../_components/AccountChart"
+import { getAccountWithTransactions } from "@/actions/account";
+import { notFound } from "next/navigation";
+import { Suspense } from "react";
+import { BarLoader } from "react-spinners";
+import TransactionTable from "../_components/TransactionTable";
+import AccountChart from "../_components/AccountChart";
+import { authRequired } from "@/lib/auth/auth-utils";
 
 const AccountPage = async ({ params }: { params: Promise<{ id: string }> }) => {
-    const { id } = await params
-    const accountData = await getAccountWithTransactions(id)
-    
+    await authRequired();
+
+    const { id } = await params;
+    const accountData = await getAccountWithTransactions(id);
+
     if (!accountData) {
         notFound();
     }
 
-    const { transactions, ...account } = accountData
+    const { transactions, ...account } = accountData;
 
     return (
         <div className="space-y-8 px-5">
@@ -45,7 +48,7 @@ const AccountPage = async ({ params }: { params: Promise<{ id: string }> }) => {
                 <TransactionTable transactions={transactions} />
             </Suspense>
         </div>
-    )
-}
+    );
+};
 
-export default AccountPage
+export default AccountPage;

@@ -1,4 +1,4 @@
-import { seedTransactions } from "@/actions/seed";
+import { seedTransactions } from "@/prisma/seed";
 import { NextResponse } from "next/server";
 
 export async function GET(): Promise<NextResponse> {

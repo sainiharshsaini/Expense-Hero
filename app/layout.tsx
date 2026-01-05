@@ -2,9 +2,8 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 
-import { ClerkProvider } from '@clerk/nextjs'
-import Header from "@/components/app-header";
-import Footer from "@/components/app-footer";
+import AppHeader from "@/components/custom/app-header";
+import AppFooter from "@/components/custom/app-footer";
 import { Toaster } from "sonner";
 
 const inter = Inter({
@@ -18,17 +17,15 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <ClerkProvider>
-      <html lang="en">
-        <body className={`${inter.className}`}>
-          <Header />
-          <Toaster richColors/>
-          <main className="min-h-screen">
-            {children}
-          </main>
-          <Footer />
-        </body>
-      </html>
-    </ClerkProvider>
+    <html lang="en">
+      <body className={`${inter.className}`}>
+        <AppHeader />
+        <Toaster richColors />
+        <main className="min-h-screen">
+          {children}
+        </main>
+        <AppFooter />
+      </body>
+    </html>
   );
 }

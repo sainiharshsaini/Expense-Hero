@@ -1,33 +1,48 @@
-import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
-// Arcjet is used in APIs/server actions to keep edge bundle small
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 
-const isProtectedRoute = createRouteMatcher([
-    "/dashboard(.*)",
-    "/account(.*)",
-    "/transaction(.*)",
-]);
+const PROTECTED_PATHS = ["/dashboard", "/account", "/transaction"];
 
-// Clerk authentication middleware only (keep edge bundle small)
-const clerk = clerkMiddleware(async (auth, req) => {
-    const { userId } = await auth();
+export async function middleware(request: NextRequest) {
+    const { pathname } = request.nextUrl;
 
-    if (!userId && isProtectedRoute(req)) {
-        const { redirectToSignIn } = await auth();
-        return redirectToSignIn();
+    const isProtected = PROTECTED_PATHS.some((path) =>
+        pathname === path || pathname.startsWith(`${path}/`)
+    );
+
+    if (!isProtected) {
+        return NextResponse.next();
+    }
+
+    // Check for Better Auth session cookie
+    // Better Auth stores session in cookies - check common cookie names
+    const cookies = request.cookies;
+    const hasSessionCookie = 
+        cookies.has("better-auth.session_token") ||
+        cookies.has("better-auth.session") ||
+        cookies.has("session") ||
+        // Check if any cookie starts with better-auth
+        Array.from(cookies.getAll()).some(cookie => 
+            cookie.name.startsWith("better-auth")
+        );
+
+    if (!hasSessionCookie) {
+        return NextResponse.redirect(new URL("/sign-in", request.url));
     }
 
     return NextResponse.next();
-});
+}
 
-// Keep middleware lean for Edge size limits
-export default clerk;
-
+// Configure which routes this middleware runs on
 export const config = {
     matcher: [
-        // Skip Next.js internals and all static files, unless found in search params
-        "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
-        // Always run for API routes
-        "/(api|trpc)(.*)",
+        /*
+         * Match all request paths except for the ones starting with:
+         * - api (API routes)
+         * - _next/static (static files)
+         * - _next/image (image optimization files)
+         * - favicon.ico (favicon file)
+         * - public folder
+         */
+        "/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
     ],
 };

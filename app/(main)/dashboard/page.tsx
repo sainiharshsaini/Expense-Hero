@@ -1,12 +1,13 @@
 import { getDashboardData, getUserAccounts } from "@/actions/dashboard";
 import { getCurrentBudget } from "@/actions/budget";
-import CreateAccountDrawer from "@/components/CreateAccountDrawer";
+import CreateAccountDrawer from "@/components/custom/create-account-drawer";
 import AccountCard from "./_components/AccountCard";
 import BudgetProgress from "./_components/BudgetProgress";
 import { DashboardOverview } from "./_components/DashboardOverview";
 import { Card, CardContent } from "@/components/ui/card";
 import { Plus } from "lucide-react";
 import type { SerializedAccount, SerializedTransaction } from "@/actions/dashboard";
+import { authRequired } from "@/lib/auth/auth-utils";
 
 type Account = SerializedAccount;
 type Transaction = SerializedTransaction;
@@ -17,6 +18,8 @@ interface BudgetData {
 }
 
 export default async function DashboardPage() {
+    await authRequired();
+
     const accountsRaw = await getUserAccounts();
     const accounts: Account[] = accountsRaw ?? [];
 
