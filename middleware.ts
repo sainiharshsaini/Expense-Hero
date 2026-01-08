@@ -1,48 +1,48 @@
-import { NextResponse, NextRequest } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 
 const PROTECTED_PATHS = ["/dashboard", "/account", "/transaction"];
 
 export async function middleware(request: NextRequest) {
-    const { pathname } = request.nextUrl;
+	const { pathname } = request.nextUrl;
 
-    const isProtected = PROTECTED_PATHS.some((path) =>
-        pathname === path || pathname.startsWith(`${path}/`)
-    );
+	const isProtected = PROTECTED_PATHS.some(
+		(path) => pathname === path || pathname.startsWith(`${path}/`),
+	);
 
-    if (!isProtected) {
-        return NextResponse.next();
-    }
+	if (!isProtected) {
+		return NextResponse.next();
+	}
 
-    // Check for Better Auth session cookie
-    // Better Auth stores session in cookies - check common cookie names
-    const cookies = request.cookies;
-    const hasSessionCookie = 
-        cookies.has("better-auth.session_token") ||
-        cookies.has("better-auth.session") ||
-        cookies.has("session") ||
-        // Check if any cookie starts with better-auth
-        Array.from(cookies.getAll()).some(cookie => 
-            cookie.name.startsWith("better-auth")
-        );
+	// Check for Better Auth session cookie
+	// Better Auth stores session in cookies - check common cookie names
+	const cookies = request.cookies;
+	const hasSessionCookie =
+		cookies.has("better-auth.session_token") ||
+		cookies.has("better-auth.session") ||
+		cookies.has("session") ||
+		// Check if any cookie starts with better-auth
+		Array.from(cookies.getAll()).some((cookie) =>
+			cookie.name.startsWith("better-auth"),
+		);
 
-    if (!hasSessionCookie) {
-        return NextResponse.redirect(new URL("/sign-in", request.url));
-    }
+	if (!hasSessionCookie) {
+		return NextResponse.redirect(new URL("/sign-in", request.url));
+	}
 
-    return NextResponse.next();
+	return NextResponse.next();
 }
 
 // Configure which routes this middleware runs on
 export const config = {
-    matcher: [
-        /*
-         * Match all request paths except for the ones starting with:
-         * - api (API routes)
-         * - _next/static (static files)
-         * - _next/image (image optimization files)
-         * - favicon.ico (favicon file)
-         * - public folder
-         */
-        "/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
-    ],
+	matcher: [
+		/*
+		 * Match all request paths except for the ones starting with:
+		 * - api (API routes)
+		 * - _next/static (static files)
+		 * - _next/image (image optimization files)
+		 * - favicon.ico (favicon file)
+		 * - public folder
+		 */
+		"/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+	],
 };
