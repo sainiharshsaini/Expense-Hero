@@ -4,6 +4,8 @@ import Link from "next/link";
 import { auth } from "@/lib/auth/auth";
 import LogoutBtn from "../auth/logout-btn";
 import { Button } from "../ui/button";
+import Image from "next/image";
+import expenseHeroLogo from "@/public/Expense_Hero.png";
 
 const AppHeader = async () => {
 	const session = await auth.api.getSession({
@@ -14,9 +16,15 @@ const AppHeader = async () => {
 
 	return (
 		<header className="fixed top-0 border-b backdrop-blur-md w-full z-50 bg-white/80">
-			<nav className="container mx-auto py-4 px-6 md:px-12 flex items-center justify-between">
-				<Link href="/">
-					<h1 className="text-2xl font-bold gradient-title">ExpenseHero</h1>
+			<nav className="container mx-auto py-2 px-6 md:px-12 flex items-center justify-between">
+				<Link href="/" className="relative block h-16 w-60">
+					<Image
+						src={expenseHeroLogo}
+						alt="Expense Hero Logo"
+						fill
+						priority // Ensures the logo loads immediately (best for SEO/LCP)
+						className="object-cover object-left"
+					/>
 				</Link>
 
 				<div className="flex items-center space-x-2 md:space-x-4">
