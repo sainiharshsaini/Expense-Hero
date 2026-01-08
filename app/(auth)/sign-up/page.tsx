@@ -1,10 +1,10 @@
-import RegisterForm from "@/components/auth/register-form"
-import { noAuthRequired } from "@/lib/auth/auth-utils"
+import RegisterForm from "@/components/auth/register-form";
+import { noAuthRequired } from "@/lib/auth/auth-utils";
 
 const Page = async () => {
-    await noAuthRequired();
+	await noAuthRequired();
 
-    return <RegisterForm />;
-}
+	return <RegisterForm />;
+};
 
-export default Page
+export default Page;

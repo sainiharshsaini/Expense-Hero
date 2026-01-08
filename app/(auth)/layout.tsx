@@ -1,12 +1,8 @@
-import AuthLayout from '@/components/auth/auth-layout'
-import { ReactNode } from 'react'
+import type { ReactNode } from "react";
+import AuthLayout from "@/components/auth/auth-layout";
 
 const Layout = ({ children }: { children: ReactNode }) => {
-    return (
-        <AuthLayout>
-            {children}
-        </AuthLayout>
-    )
-}
+	return <AuthLayout>{children}</AuthLayout>;
+};
 
-export default Layout
+export default Layout;
