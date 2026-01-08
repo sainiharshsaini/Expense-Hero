@@ -194,12 +194,25 @@ export function DashboardOverview({ accounts, transactions }: Props) {
 											`${name}: $${typeof value === "number" ? value.toFixed(2) : "0.00"}`
 										}
 									>
-										{pieChartData.map((_, i) => (
-											<Cell key={i} fill={COLORS[i % COLORS.length]} />
+										{pieChartData.map((entry) => (
+											<Cell
+												key={entry.name}
+												fill={
+													COLORS[
+														pieChartData.findIndex(
+															(e) => e.name === entry.name,
+														) % COLORS.length
+													]
+												}
+											/>
 										))}
 									</Pie>
 									<Tooltip
-										formatter={(val: number) => `$${val.toFixed(2)}`}
+										formatter={(value?: number) =>
+											typeof value === "number"
+												? `$${value.toFixed(2)}`
+												: "$0.00"
+										}
 										contentStyle={{
 											backgroundColor: "hsl(var(--popover))",
 											border: "1px solid hsl(var(--border))",
