@@ -1,3 +1,5 @@
+import { Suspense } from "react";
+import { Loader2 } from "lucide-react";
 import { getUserAccounts, type SerializedAccount } from "@/actions/dashboard";
 import { getTransaction } from "@/actions/transaction";
 import { defaultCategories } from "@/data/categories";
@@ -32,12 +34,18 @@ export default async function AddTransactionPage({ searchParams }: PageProps) {
 					{editId ? "Edit Transaction" : "Add Transaction"}
 				</h1>
 			</div>
-			<AddTransactionForm
-				accounts={accounts}
-				categories={defaultCategories}
-				editMode={!!editId}
-				initialData={initialData}
-			/>
+			<Suspense fallback={
+				<div className="flex items-center justify-center p-12 glass-panel border-white/10 rounded-3xl">
+					<Loader2 className="h-10 w-10 animate-spin text-primary" />
+				</div>
+			}>
+				<AddTransactionForm
+					accounts={accounts}
+					categories={defaultCategories}
+					editMode={!!editId}
+					initialData={initialData}
+				/>
+			</Suspense>
 		</div>
 	);
 }
