@@ -96,7 +96,6 @@ export async function updateTransaction(id: any, data: any) {
 		const session = await authRequired();
 		const userId = session.user.id;
 
-		// Get original transaction to calculate balance change
 		const originalTransaction = await prisma.transaction.findUnique({
 			where: {
 				id,
@@ -109,7 +108,6 @@ export async function updateTransaction(id: any, data: any) {
 
 		if (!originalTransaction) throw new Error("Transaction not found");
 
-		// Calculate balance changes
 		const oldBalanceChange =
 			originalTransaction.type === "EXPENSE"
 				? -originalTransaction.amount.toNumber()
@@ -120,7 +118,6 @@ export async function updateTransaction(id: any, data: any) {
 
 		const netBalanceChange = newBalanceChange - oldBalanceChange;
 
-		// Update transaction and account balance in a transaction
 		const transaction = await prisma.$transaction(async (tx) => {
 			const updated = await tx.transaction.update({
 				where: {
@@ -136,7 +133,6 @@ export async function updateTransaction(id: any, data: any) {
 				},
 			});
 
-			// Update account balance
 			await tx.financialAccount.update({
 				where: { id: data.accountId },
 				data: {
@@ -158,7 +154,7 @@ export async function updateTransaction(id: any, data: any) {
 	}
 }
 
-// Get User Transactions
+
 export async function getUserTransactions(query = {}) {
 	try {
 		const session = await authRequired();
@@ -183,7 +179,7 @@ export async function getUserTransactions(query = {}) {
 	}
 }
 
-// Interface for scanned receipt data
+
 interface ScannedReceiptData {
 	amount: number;
 	date: Date;
@@ -192,21 +188,21 @@ interface ScannedReceiptData {
 	merchantName: string;
 }
 
-// Scan a receipt image using AI
+
 export async function scanReceipt(file: File): Promise<ScannedReceiptData> {
 	try {
-		// Check if API key is available
+
 		if (!process.env.GEMINI_API_KEY) {
 			throw new Error("AI service not configured. Please contact support.");
 		}
 
 		const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
-		// Convert file to base64 for AI processing
+
 		const arrayBuffer = await file.arrayBuffer();
 		const base64String = Buffer.from(arrayBuffer).toString("base64");
 
-		// Simple, clear prompt for the AI
+
 		const prompt = `
             Analyze this receipt image and extract the following information in JSON format:
             - Total amount (just the number)
@@ -227,7 +223,7 @@ export async function scanReceipt(file: File): Promise<ScannedReceiptData> {
             If it's not a receipt, return an empty object.
         `;
 
-		// Send request to AI
+
 		const result = await model.generateContent([
 			{
 				inlineData: {
@@ -238,15 +234,15 @@ export async function scanReceipt(file: File): Promise<ScannedReceiptData> {
 			prompt,
 		]);
 
-		// Get and clean the response
+
 		const response = await result.response;
 		const text = response.text();
 		const cleanedText = text.replace(/```(?:json)?\n?/g, "").trim();
 
-		// Parse the JSON response
+
 		const data = JSON.parse(cleanedText);
 
-		// Validate the response
+
 		if (!data.amount || !data.date || !data.category) {
 			throw new Error(
 				"Could not extract all required information from the receipt",
@@ -263,7 +259,7 @@ export async function scanReceipt(file: File): Promise<ScannedReceiptData> {
 	} catch (error) {
 		console.error("Error scanning receipt:", error);
 
-		// Return user-friendly error message
+
 		if (error instanceof Error) {
 			throw new Error(`Failed to scan receipt: ${error.message}`);
 		}
@@ -273,7 +269,7 @@ export async function scanReceipt(file: File): Promise<ScannedReceiptData> {
 	}
 }
 
-// Helper function to calculate next recurring date
+
 function calculateNextRecurringDate(startDate: any, interval: any) {
 	const date = new Date(startDate);
 

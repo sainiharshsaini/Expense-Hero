@@ -27,6 +27,7 @@ import {
 	FormMessage,
 } from "../ui/form";
 import { Input } from "../ui/input";
+import { Loader2, LogIn, Mail } from "lucide-react";
 
 const LoginForm = () => {
 	const router = useRouter();
@@ -40,17 +41,16 @@ const LoginForm = () => {
 	});
 
 	const onSubmit = async (values: LoginFormValues) => {
-		console.log(values);
 		await authClient.signIn.email(
 			{
 				email: values.email,
 				password: values.password,
-				callbackURL: "/",
+				callbackURL: "/dashboard",
 			},
 			{
 				onSuccess: () => {
-					toast.success("User login successfully!");
-					router.push("/");
+					toast.success("Welcome back!");
+					router.push("/dashboard");
 				},
 				onError: (ctx) => {
 					toast.error(ctx.error.message);
@@ -62,87 +62,125 @@ const LoginForm = () => {
 	const isPending = form.formState.isSubmitting;
 
 	return (
-		<div className="flex flex-col gap-6 text-center">
-			<Card>
-				<CardHeader>
-					<CardTitle>Welcome back</CardTitle>
-					<CardDescription>Signin to continue</CardDescription>
+		<div className="flex flex-col gap-6 text-center animate-in fade-in zoom-in duration-500">
+			<Card className="glass-panel border-white/10 shadow-2xl overflow-hidden relative">
+				<div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 to-emerald-500" />
+				<CardHeader className="space-y-1 pb-2">
+					<div className="mx-auto mb-4 h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center">
+						<LogIn className="h-6 w-6 text-primary" />
+					</div>
+					<CardTitle className="text-2xl font-bold tracking-tight">Welcome back</CardTitle>
+					<CardDescription className="text-base text-muted-foreground">
+						Sign in to your account to continue
+					</CardDescription>
 				</CardHeader>
 
-				<CardContent>
+				<CardContent className="pt-6">
 					<Form {...form}>
-						<form onSubmit={form.handleSubmit(onSubmit)}>
-							<div className="grid gap-6">
-								<FormField
-									control={form.control}
-									name="email"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>Email</FormLabel>
+						<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+							<FormField
+								control={form.control}
+								name="email"
+								render={({ field }) => (
+									<FormItem>
+										<div className="relative">
+											<Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
 											<FormControl>
 												<Input
 													type="email"
-													placeholder="h@example.com"
+													placeholder="name@example.com"
+													className="pl-9 h-11 bg-white/5 border-white/10 focus-visible:ring-primary/20 transition-all font-medium"
 													{...field}
 												/>
 											</FormControl>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-								<FormField
-									control={form.control}
-									name="password"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>Password</FormLabel>
+										</div>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+							<FormField
+								control={form.control}
+								name="password"
+								render={({ field }) => (
+									<FormItem>
+										<div className="relative">
+											<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="absolute left-3 top-3 h-4 w-4 text-muted-foreground"><rect width="18" height="11" x="3" y="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
 											<FormControl>
 												<Input
 													type="password"
-													placeholder="*********"
+													placeholder="Your password"
+													className="pl-9 h-11 bg-white/5 border-white/10 focus-visible:ring-primary/20 transition-all font-medium"
 													{...field}
 												/>
 											</FormControl>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-								<Button type="submit" className="w-full" disabled={isPending}>
-									Sign in
-								</Button>
+										</div>
+										<div className="flex justify-end pt-1">
+											<Link
+												href="/forgot-password"
+												className="text-sm font-bold uppercase tracking-widest text-primary hover:text-primary/80 transition-colors"
+											>
+												Forgot password?
+											</Link>
+										</div>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+							<Button
+								type="submit"
+								className="w-full h-11 font-semibold text-base shadow-lg shadow-primary/20 hover:scale-[1.02] transition-all duration-300"
+								disabled={isPending}
+							>
+								{isPending ? (
+									<>
+										<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+										Signing in...
+									</>
+								) : (
+									"Sign In"
+								)}
+							</Button>
 
-								<p className="text-center">or</p>
-
-								<Button
-									variant="outline"
-									className="w-full"
-									type="button"
-									disabled={isPending}
-								>
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										width="24"
-										height="24"
-										viewBox="0 0 24 24"
-										fill="currentColor"
-										className="icon icon-tabler icons-tabler-filled icon-tabler-brand-google"
-									>
-										<title>Google logo</title>
-										<path stroke="none" d="M0 0h24v24H0z" fill="none" />
-										<path d="M12 2a9.96 9.96 0 0 1 6.29 2.226a1 1 0 0 1 .04 1.52l-1.51 1.362a1 1 0 0 1 -1.265 .06a6 6 0 1 0 2.103 6.836l.001 -.004h-3.66a1 1 0 0 1 -.992 -.883l-.007 -.117v-2a1 1 0 0 1 1 -1h6.945a1 1 0 0 1 .994 .89c.04 .367 .061 .737 .061 1.11c0 5.523 -4.477 10 -10 10s-10 -4.477 -10 -10s4.477 -10 10 -10z" />
-									</svg>
-									Continue with Google
-								</Button>
-
-								<div className="text-center text-sm">
-									Don&apos;t have an account?{" "}
-									<Link
-										href="/sign-up"
-										className="underline underline-offset-4"
-									>
-										Sign up
-									</Link>
+							<div className="relative my-6">
+								<div className="absolute inset-0 flex items-center">
+									<span className="w-full border-t border-border" />
 								</div>
+								<div className="relative flex justify-center text-xs uppercase">
+									<span className="bg-background px-2 text-muted-foreground font-medium">
+										OR CONTINUE WITH
+									</span>
+								</div>
+							</div>
+
+							<Button
+								variant="outline"
+								className="w-full h-11 bg-white/5 border-white/10 hover:bg-white/10 transition-all relative overflow-hidden group"
+								type="button"
+								disabled={isPending}
+							>
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									width="24"
+									height="24"
+									viewBox="0 0 24 24"
+									fill="currentColor"
+									className="mr-2 h-4 w-4"
+								>
+									<path stroke="none" d="M0 0h24v24H0z" fill="none" />
+									<path d="M12 2a9.96 9.96 0 0 1 6.29 2.226a1 1 0 0 1 .04 1.52l-1.51 1.362a1 1 0 0 1 -1.265 .06a6 6 0 1 0 2.103 6.836l.001 -.004h-3.66a1 1 0 0 1 -.992 -.883l-.007 -.117v-2a1 1 0 0 1 1 -1h6.945a1 1 0 0 1 .994 .89c.04 .367 .061 .737 .061 1.11c0 5.523 -4.477 10 -10 10s-10 -4.477 -10 -10s4.477 -10 10 -10z" />
+								</svg>
+								Google
+								<span className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+							</Button>
+
+							<div className="text-center text-sm text-muted-foreground mt-4">
+								Don&apos;t have an account?{" "}
+								<Link
+									href="/sign-up"
+									className="font-semibold text-primary hover:underline underline-offset-4 transition-colors"
+								>
+									Sign up
+								</Link>
 							</div>
 						</form>
 					</Form>

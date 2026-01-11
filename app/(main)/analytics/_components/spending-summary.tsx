@@ -73,7 +73,7 @@ export function SpendingSummary({ transactions }: SpendingSummaryProps) {
 
     return (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            {/* Total Income */}
+
             <div className="stat-card group">
                 <div className="flex items-center justify-between mb-4">
                     <div className="h-12 w-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center group-hover:scale-110 transition-transform">
@@ -99,7 +99,7 @@ export function SpendingSummary({ transactions }: SpendingSummaryProps) {
                 </p>
             </div>
 
-            {/* Total Expenses */}
+
             <div className="stat-card group">
                 <div className="flex items-center justify-between mb-4">
                     <div className="h-12 w-12 rounded-2xl bg-red-500/10 flex items-center justify-center group-hover:scale-110 transition-transform">
@@ -125,7 +125,7 @@ export function SpendingSummary({ transactions }: SpendingSummaryProps) {
                 </p>
             </div>
 
-            {/* Net Savings */}
+
             <div className="stat-card group">
                 <div className="flex items-center justify-between mb-4">
                     <div className="h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
@@ -150,7 +150,7 @@ export function SpendingSummary({ transactions }: SpendingSummaryProps) {
                 </p>
             </div>
 
-            {/* Average Monthly */}
+
             <div className="stat-card group">
                 <div className="flex items-center justify-between mb-4">
                     <div className="h-12 w-12 rounded-2xl bg-indigo-500/10 flex items-center justify-center group-hover:scale-110 transition-transform">

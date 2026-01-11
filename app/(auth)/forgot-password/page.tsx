@@ -61,7 +61,7 @@ export default function ForgotPasswordPage() {
 
     return (
         <div className="min-h-screen flex items-center justify-center px-4 py-12">
-            {/* Background Effects */}
+
             <div className="fixed inset-0 -z-10 bg-background">
                 <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-indigo-500/10 rounded-full blur-[120px]" />
                 <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-emerald-500/10 rounded-full blur-[100px]" />
@@ -69,7 +69,7 @@ export default function ForgotPasswordPage() {
 
             <div className="w-full max-w-md mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700">
                 <Card className="glass-panel border-white/10 shadow-2xl overflow-hidden relative">
-                    {/* Decorative Accent */}
+
                     <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500" />
 
                     <CardHeader className="text-center pt-10 pb-6 space-y-2">

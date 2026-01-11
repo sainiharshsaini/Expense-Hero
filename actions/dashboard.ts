@@ -132,7 +132,6 @@ export async function getDashboardData(): Promise<SerializedTransaction[]> {
 	const session = await authRequired();
 	const userId = session.user.id;
 
-	// Get all user transactions
 	const transactions = await prisma.transaction.findMany({
 		where: { userId },
 		orderBy: { date: "desc" },
