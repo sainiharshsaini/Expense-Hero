@@ -4,7 +4,7 @@ import { defaultCategories } from "@/data/categories";
 import { authRequired } from "@/lib/auth/auth-utils";
 import { AddTransactionForm } from "../_components/AddTransactionForm";
 
-// Simple interface for search params
+
 interface SearchParams {
 	edit?: string;
 }

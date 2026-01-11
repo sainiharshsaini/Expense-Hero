@@ -1,7 +1,7 @@
 "use client";
 
 import { format } from "date-fns";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
     Area,
     AreaChart,
@@ -62,6 +62,12 @@ const COLORS = [
 
 export function AnalyticsCharts({ accounts, transactions }: AnalyticsChartsProps) {
     const [timeRange, setTimeRange] = useState<"3" | "6" | "12">("6");
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
     const monthsToShow = parseInt(timeRange);
 
 
@@ -157,6 +163,7 @@ export function AnalyticsCharts({ accounts, transactions }: AnalyticsChartsProps
     return (
         <div className="grid gap-6 lg:grid-cols-2">
 
+            {/* Income vs Expenses Trend */}
             <Card className="glass-panel border-white/10 shadow-xl lg:col-span-2">
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
                     <CardTitle className="text-xl font-bold tracking-tight">
@@ -175,58 +182,64 @@ export function AnalyticsCharts({ accounts, transactions }: AnalyticsChartsProps
                 </CardHeader>
                 <CardContent>
                     <div className="h-[350px] w-full">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <AreaChart data={monthlyData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-                                <defs>
-                                    <linearGradient id="incomeGradient" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#22c55e" stopOpacity={0.3} />
-                                        <stop offset="95%" stopColor="#22c55e" stopOpacity={0} />
-                                    </linearGradient>
-                                    <linearGradient id="expenseGradient" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#ef4444" stopOpacity={0.3} />
-                                        <stop offset="95%" stopColor="#ef4444" stopOpacity={0} />
-                                    </linearGradient>
-                                </defs>
-                                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-                                <XAxis
-                                    dataKey="name"
-                                    stroke="rgba(255,255,255,0.5)"
-                                    fontSize={12}
-                                    tickLine={false}
-                                    axisLine={false}
-                                />
-                                <YAxis
-                                    stroke="rgba(255,255,255,0.5)"
-                                    fontSize={12}
-                                    tickLine={false}
-                                    axisLine={false}
-                                    tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
-                                />
-                                <Tooltip content={<CustomTooltip />} />
-                                <Legend />
-                                <Area
-                                    type="monotone"
-                                    dataKey="income"
-                                    name="Income"
-                                    stroke="#22c55e"
-                                    strokeWidth={2}
-                                    fill="url(#incomeGradient)"
-                                />
-                                <Area
-                                    type="monotone"
-                                    dataKey="expenses"
-                                    name="Expenses"
-                                    stroke="#ef4444"
-                                    strokeWidth={2}
-                                    fill="url(#expenseGradient)"
-                                />
-                            </AreaChart>
-                        </ResponsiveContainer>
+                        {!mounted ? (
+                            <div className="flex items-center justify-center h-full">
+                                <div className="w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
+                            </div>
+                        ) : (
+                            <ResponsiveContainer width="100%" height="100%">
+                                <AreaChart data={monthlyData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                                    <defs>
+                                        <linearGradient id="incomeGradient" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="5%" stopColor="#22c55e" stopOpacity={0.3} />
+                                            <stop offset="95%" stopColor="#22c55e" stopOpacity={0} />
+                                        </linearGradient>
+                                        <linearGradient id="expenseGradient" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="5%" stopColor="#ef4444" stopOpacity={0.3} />
+                                            <stop offset="95%" stopColor="#ef4444" stopOpacity={0} />
+                                        </linearGradient>
+                                    </defs>
+                                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                                    <XAxis
+                                        dataKey="name"
+                                        stroke="rgba(255,255,255,0.5)"
+                                        fontSize={12}
+                                        tickLine={false}
+                                        axisLine={false}
+                                    />
+                                    <YAxis
+                                        stroke="rgba(255,255,255,0.5)"
+                                        fontSize={12}
+                                        tickLine={false}
+                                        axisLine={false}
+                                        tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
+                                    />
+                                    <Tooltip content={<CustomTooltip />} />
+                                    <Legend />
+                                    <Area
+                                        type="monotone"
+                                        dataKey="income"
+                                        name="Income"
+                                        stroke="#22c55e"
+                                        strokeWidth={2}
+                                        fill="url(#incomeGradient)"
+                                    />
+                                    <Area
+                                        type="monotone"
+                                        dataKey="expenses"
+                                        name="Expenses"
+                                        stroke="#ef4444"
+                                        strokeWidth={2}
+                                        fill="url(#expenseGradient)"
+                                    />
+                                </AreaChart>
+                            </ResponsiveContainer>
+                        )}
                     </div>
                 </CardContent>
             </Card>
 
-
+            {/* Spending by Category */}
             <Card className="glass-panel border-white/10 shadow-xl">
                 <CardHeader>
                     <CardTitle className="text-xl font-bold tracking-tight">
@@ -243,53 +256,59 @@ export function AnalyticsCharts({ accounts, transactions }: AnalyticsChartsProps
                         </div>
                     ) : (
                         <div className="h-[300px] w-full">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <PieChart>
-                                    <Pie
-                                        data={categoryData}
-                                        cx="50%"
-                                        cy="50%"
-                                        innerRadius={60}
-                                        outerRadius={100}
-                                        paddingAngle={3}
-                                        dataKey="value"
-                                    >
-                                        {categoryData.map((entry, index) => (
-                                            <Cell key={`cell-${index}`} fill={entry.color} stroke="none" />
-                                        ))}
-                                    </Pie>
-                                    <Tooltip
-                                        formatter={(value) =>
-                                            typeof value === "number"
-                                                ? `$${value.toLocaleString(undefined, { minimumFractionDigits: 2 })}`
-                                                : "$0.00"
-                                        }
-                                        contentStyle={{
-                                            backgroundColor: "rgba(0, 0, 0, 0.8)",
-                                            border: "1px solid rgba(255, 255, 255, 0.1)",
-                                            borderRadius: "12px",
-                                            backdropFilter: "blur(10px)",
-                                        }}
-                                        itemStyle={{ color: "#fff", fontWeight: "bold" }}
-                                    />
-                                    <Legend
-                                        verticalAlign="bottom"
-                                        height={36}
-                                        iconType="circle"
-                                        formatter={(value) => (
-                                            <span className="text-xs font-bold text-muted-foreground ml-1">
-                                                {value}
-                                            </span>
-                                        )}
-                                    />
-                                </PieChart>
-                            </ResponsiveContainer>
+                            {!mounted ? (
+                                <div className="flex items-center justify-center h-full">
+                                    <div className="w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
+                                </div>
+                            ) : (
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <PieChart>
+                                        <Pie
+                                            data={categoryData}
+                                            cx="50%"
+                                            cy="50%"
+                                            innerRadius={60}
+                                            outerRadius={100}
+                                            paddingAngle={3}
+                                            dataKey="value"
+                                        >
+                                            {categoryData.map((entry, index) => (
+                                                <Cell key={`cell-${index}`} fill={entry.color} stroke="none" />
+                                            ))}
+                                        </Pie>
+                                        <Tooltip
+                                            formatter={(value) =>
+                                                typeof value === "number"
+                                                    ? `$${value.toLocaleString(undefined, { minimumFractionDigits: 2 })}`
+                                                    : "$0.00"
+                                            }
+                                            contentStyle={{
+                                                backgroundColor: "rgba(0, 0, 0, 0.8)",
+                                                border: "1px solid rgba(255, 255, 255, 0.1)",
+                                                borderRadius: "12px",
+                                                backdropFilter: "blur(10px)",
+                                            }}
+                                            itemStyle={{ color: "#fff", fontWeight: "bold" }}
+                                        />
+                                        <Legend
+                                            verticalAlign="bottom"
+                                            height={36}
+                                            iconType="circle"
+                                            formatter={(value) => (
+                                                <span className="text-xs font-bold text-muted-foreground ml-1">
+                                                    {value}
+                                                </span>
+                                            )}
+                                        />
+                                    </PieChart>
+                                </ResponsiveContainer>
+                            )}
                         </div>
                     )}
                 </CardContent>
             </Card>
 
-
+            {/* Top Spending Categories */}
             <Card className="glass-panel border-white/10 shadow-xl">
                 <CardHeader>
                     <CardTitle className="text-xl font-bold tracking-tight">
@@ -306,51 +325,57 @@ export function AnalyticsCharts({ accounts, transactions }: AnalyticsChartsProps
                         </div>
                     ) : (
                         <div className="h-[300px] w-full">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <BarChart
-                                    data={topCategories}
-                                    layout="vertical"
-                                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                                >
-                                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" horizontal={false} />
-                                    <XAxis
-                                        type="number"
-                                        stroke="rgba(255,255,255,0.5)"
-                                        fontSize={12}
-                                        tickLine={false}
-                                        axisLine={false}
-                                        tickFormatter={(value) => `$${value.toLocaleString()}`}
-                                    />
-                                    <YAxis
-                                        type="category"
-                                        dataKey="name"
-                                        stroke="rgba(255,255,255,0.5)"
-                                        fontSize={12}
-                                        tickLine={false}
-                                        axisLine={false}
-                                        width={80}
-                                    />
-                                    <Tooltip
-                                        formatter={(value) =>
-                                            typeof value === "number"
-                                                ? `$${value.toLocaleString(undefined, { minimumFractionDigits: 2 })}`
-                                                : "$0.00"
-                                        }
-                                        contentStyle={{
-                                            backgroundColor: "rgba(0, 0, 0, 0.8)",
-                                            border: "1px solid rgba(255, 255, 255, 0.1)",
-                                            borderRadius: "12px",
-                                            backdropFilter: "blur(10px)",
-                                        }}
-                                        itemStyle={{ color: "#fff", fontWeight: "bold" }}
-                                    />
-                                    <Bar dataKey="value" radius={[0, 8, 8, 0]}>
-                                        {topCategories.map((entry, index) => (
-                                            <Cell key={`cell-${index}`} fill={entry.color} />
-                                        ))}
-                                    </Bar>
-                                </BarChart>
-                            </ResponsiveContainer>
+                            {!mounted ? (
+                                <div className="flex items-center justify-center h-full">
+                                    <div className="w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
+                                </div>
+                            ) : (
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <BarChart
+                                        data={topCategories}
+                                        layout="vertical"
+                                        margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                                    >
+                                        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" horizontal={false} />
+                                        <XAxis
+                                            type="number"
+                                            stroke="rgba(255,255,255,0.5)"
+                                            fontSize={12}
+                                            tickLine={false}
+                                            axisLine={false}
+                                            tickFormatter={(value) => `$${value.toLocaleString()}`}
+                                        />
+                                        <YAxis
+                                            type="category"
+                                            dataKey="name"
+                                            stroke="rgba(255,255,255,0.5)"
+                                            fontSize={12}
+                                            tickLine={false}
+                                            axisLine={false}
+                                            width={80}
+                                        />
+                                        <Tooltip
+                                            formatter={(value) =>
+                                                typeof value === "number"
+                                                    ? `$${value.toLocaleString(undefined, { minimumFractionDigits: 2 })}`
+                                                    : "$0.00"
+                                            }
+                                            contentStyle={{
+                                                backgroundColor: "rgba(0, 0, 0, 0.8)",
+                                                border: "1px solid rgba(255, 255, 255, 0.1)",
+                                                borderRadius: "12px",
+                                                backdropFilter: "blur(10px)",
+                                            }}
+                                            itemStyle={{ color: "#fff", fontWeight: "bold" }}
+                                        />
+                                        <Bar dataKey="value" radius={[0, 8, 8, 0]}>
+                                            {topCategories.map((entry, index) => (
+                                                <Cell key={`cell-${index}`} fill={entry.color} />
+                                            ))}
+                                        </Bar>
+                                    </BarChart>
+                                </ResponsiveContainer>
+                            )}
                         </div>
                     )}
                 </CardContent>

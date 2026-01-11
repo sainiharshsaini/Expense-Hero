@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Outfit } from "next/font/google";
 import "./globals.css";
-
-import { Toaster } from "sonner";
-import AppFooter from "@/components/custom/app-footer";
 import AppHeader from "@/components/custom/app-header";
+import AppFooter from "@/components/custom/app-footer";
+import { Toaster } from "sonner";
 
-const inter = Inter({
+const outfit = Outfit({
 	subsets: ["latin"],
+	variable: "--font-outfit",
 });
 
 export const metadata: Metadata = {
@@ -21,7 +21,7 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
 	return (
 		<html lang="en">
-			<body className={`${inter.className}`}>
+			<body className={`${outfit.variable} font-sans antialiased`}>
 				<AppHeader />
 				<Toaster richColors />
 				<main className="min-h-screen">{children}</main>

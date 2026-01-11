@@ -6,9 +6,7 @@ import EmailTemplate from "@/emails/template";
 import prisma from "../prisma";
 import { inngest } from "./client";
 
-// ====================
-// 1. Recurring Transactions
-// ====================
+
 export const processRecurringTransaction = inngest.createFunction(
 	{
 		id: "process-recurring-transaction",
@@ -95,9 +93,7 @@ export const triggerRecurringTransactions = inngest.createFunction(
 	},
 );
 
-// ====================
-// 2. Monthly Reports
-// ====================
+
 
 // Simple interface for financial stats
 interface FinancialStats {
@@ -179,9 +175,7 @@ export const generateMonthlyReports = inngest.createFunction(
 	},
 );
 
-// ====================
-// 3. Budget Alerts
-// ====================
+
 export const checkBudgetAlerts = inngest.createFunction(
 	{ id: "check-budget-alerts", name: "Check Budget Alerts" },
 	{ cron: "0 */6 * * *" }, // Every 6 hours
@@ -249,9 +243,7 @@ export const checkBudgetAlerts = inngest.createFunction(
 	},
 );
 
-// ====================
-// Helpers
-// ====================
+
 function isTransactionDue(t: any) {
 	if (!t.lastProcessed) return true;
 	return new Date(t.nextRecurringDate) <= new Date();

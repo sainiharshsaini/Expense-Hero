@@ -3,13 +3,13 @@ import { Skeleton } from "@/components/ui/skeleton";
 export default function AnalyticsLoading() {
     return (
         <div className="space-y-8 animate-in fade-in duration-500">
-            {/* Header */}
+
             <div className="space-y-2">
                 <Skeleton className="h-10 w-48" />
                 <Skeleton className="h-5 w-80" />
             </div>
 
-            {/* Stats Cards */}
+
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                 {[...Array(4)].map((_, i) => (
                     <div key={i} className="stat-card">
@@ -23,7 +23,6 @@ export default function AnalyticsLoading() {
                 ))}
             </div>
 
-            {/* Charts */}
             <div className="grid gap-6 lg:grid-cols-2">
                 <div className="lg:col-span-2 glass-panel border-white/10 rounded-3xl p-6">
                     <div className="flex justify-between mb-4">

@@ -77,18 +77,7 @@ export default function ProfileClient({ user }: ProfileClientProps) {
         const file = e.target.files?.[0];
         if (!file) return;
 
-        // For demo purposes, we'll show a toast. In production, you'd upload to a storage service.
-        setIsUploadingPhoto(true);
-        try {
-            // Simulate upload delay
-            await new Promise((resolve) => setTimeout(resolve, 1500));
-            toast.success("Profile photo updated! (Demo mode - photo not persisted)");
-            // In production: upload to S3/Cloudinary, then update user profile via authClient
-        } catch {
-            toast.error("Failed to upload photo");
-        } finally {
-            setIsUploadingPhoto(false);
-        }
+        toast.success("Profile photo updated! (Demo mode - photo not persisted)");
     };
 
     const onProfileSubmit = async (values: z.infer<typeof profileSchema>) => {
@@ -118,14 +107,14 @@ export default function ProfileClient({ user }: ProfileClientProps) {
 
     return (
         <div className="max-w-4xl mx-auto space-y-10">
-            {/* Profile Header */}
+
             <div className="glass-panel relative overflow-hidden rounded-[2.5rem] border-white/10 shadow-2xl p-8 md:p-12">
-                {/* Visual Accents */}
+
                 <div className="absolute top-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-[120px] -mr-32 -mt-32" />
                 <div className="absolute bottom-0 left-0 w-64 h-64 bg-indigo-500/5 rounded-full blur-[80px] -ml-20 -mb-20" />
 
                 <div className="relative z-10 flex flex-col md:flex-row items-center gap-8">
-                    {/* Avatar with Upload */}
+
                     <div className="relative group">
                         <Avatar className="h-32 w-32 border-4 border-white/10 shadow-2xl">
                             <AvatarImage src={user.image || undefined} alt={user.name || "User"} />
@@ -153,7 +142,7 @@ export default function ProfileClient({ user }: ProfileClientProps) {
                         />
                     </div>
 
-                    {/* User Info */}
+
                     <div className="text-center md:text-left space-y-2">
                         <h1 className="text-3xl md:text-4xl font-black tracking-tight">
                             {user.name || "User"}
@@ -170,9 +159,9 @@ export default function ProfileClient({ user }: ProfileClientProps) {
                 </div>
             </div>
 
-            {/* Settings Grid */}
+
             <div className="grid gap-8 md:grid-cols-2" id="settings">
-                {/* Profile Settings */}
+
                 <Card className="glass-panel border-white/10 shadow-xl">
                     <CardHeader>
                         <div className="flex items-center gap-3">
@@ -225,7 +214,7 @@ export default function ProfileClient({ user }: ProfileClientProps) {
                     </CardContent>
                 </Card>
 
-                {/* Security Settings */}
+
                 <Card className="glass-panel border-white/10 shadow-xl">
                     <CardHeader>
                         <div className="flex items-center gap-3">

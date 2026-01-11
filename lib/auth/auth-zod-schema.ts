@@ -2,7 +2,7 @@ import z from "zod";
 
 export const RegisterFormSchema = z
 	.object({
-		email: z.email("Please enter a valid email address"),
+		email: z.string().email("Please enter a valid email address"),
 		password: z.string().min(4, "Password is required"),
 		confirmPassword: z.string(),
 	})
@@ -14,7 +14,7 @@ export const RegisterFormSchema = z
 export type RegisterFormValues = z.infer<typeof RegisterFormSchema>;
 
 export const LoginFormSchema = z.object({
-	email: z.email("Please enter a valid email address"),
+	email: z.string().email("Please enter a valid email address"),
 	password: z.string().min(1, "Password is required"),
 });
 
