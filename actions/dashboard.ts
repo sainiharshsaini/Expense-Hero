@@ -48,7 +48,7 @@ export async function createAccount(
 		const balanceFloat = parseFloat(data.balance);
 		if (isNaN(balanceFloat)) throw new Error("Invalid balance amount");
 
-		const existingAccounts = await prisma.account.findMany({
+		const existingAccounts = await prisma.financialAccount.findMany({
 			where: { userId },
 		});
 

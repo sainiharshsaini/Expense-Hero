@@ -60,7 +60,7 @@
 		"@types/node": "^25",
 		"@types/react": "^19",
 		"@types/react-dom": "^19",
-		"prisma": "^7.2.0",
+		"prisma": "^6.19.2",
 		"react-email": "5.1.1",
 		"tailwindcss": "^4",
 		"tsx": "^4.21.0",
