@@ -21,7 +21,6 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 
-
 type Account = {
 	id: string;
 	name: string;
@@ -43,7 +42,6 @@ type Props = {
 	transactions: Transaction[];
 };
 
-
 const COLORS = [
 	"#10b981", // Emerald
 	"#3b82f6", // Blue
@@ -53,7 +51,6 @@ const COLORS = [
 	"#06b6d4", // Cyan
 	"#ec4899", // Pink
 ];
-
 
 export function DashboardOverview({ accounts, transactions }: Props) {
 	const [selectedAccountId, setSelectedAccountId] = useState(
@@ -65,11 +62,9 @@ export function DashboardOverview({ accounts, transactions }: Props) {
 		setMounted(true);
 	}, []);
 
-
 	const accountTransactions = transactions.filter(
 		(t) => t.accountId === selectedAccountId,
 	);
-
 
 	const recentTransactions = [...accountTransactions]
 		.sort((a, b) => {
@@ -78,7 +73,6 @@ export function DashboardOverview({ accounts, transactions }: Props) {
 			return dateB.getTime() - dateA.getTime();
 		})
 		.slice(0, 5);
-
 
 	const now = new Date();
 	const currentMonthExpenses = accountTransactions.filter((t) => {
@@ -90,7 +84,6 @@ export function DashboardOverview({ accounts, transactions }: Props) {
 		);
 	});
 
-
 	const expensesByCategory = currentMonthExpenses.reduce<
 		Record<string, number>
 	>((acc, t) => {
@@ -98,21 +91,21 @@ export function DashboardOverview({ accounts, transactions }: Props) {
 		return acc;
 	}, {});
 
-
 	const pieChartData = Object.entries(expensesByCategory).map(
 		([category, amount]) => ({ name: category, value: amount }),
 	);
 
 	return (
 		<div className="grid gap-8 md:grid-cols-2 animate-in fade-in slide-in-from-bottom-5 duration-700">
-
 			<Card className="glass-panel border-white/10 shadow-2xl overflow-hidden hover:shadow-primary/5 transition-all duration-500">
 				<CardHeader className="flex flex-row items-center justify-between pb-6 bg-white/5 border-b border-white/10">
 					<div>
 						<CardTitle className="text-xl font-black tracking-tight">
 							Recent Activity
 						</CardTitle>
-						<p className="text-xs text-muted-foreground font-bold uppercase tracking-widest mt-1">Latest Transactions</p>
+						<p className="text-xs text-muted-foreground font-bold uppercase tracking-widest mt-1">
+							Latest Transactions
+						</p>
 					</div>
 					<Select
 						value={selectedAccountId}
@@ -123,7 +116,11 @@ export function DashboardOverview({ accounts, transactions }: Props) {
 						</SelectTrigger>
 						<SelectContent className="glass-panel border-white/10">
 							{accounts.map((account) => (
-								<SelectItem key={account.id} value={account.id} className="font-bold">
+								<SelectItem
+									key={account.id}
+									value={account.id}
+									className="font-bold"
+								>
 									{account.name}
 								</SelectItem>
 							))}
@@ -143,12 +140,19 @@ export function DashboardOverview({ accounts, transactions }: Props) {
 					) : (
 						<div className="space-y-1">
 							{recentTransactions.map((t, i) => (
-								<div key={t.id} className="group flex items-center justify-between p-4 rounded-2xl hover:bg-white/5 transition-all duration-300 border border-transparent hover:border-white/5">
+								<div
+									key={t.id}
+									className="group flex items-center justify-between p-4 rounded-2xl hover:bg-white/5 transition-all duration-300 border border-transparent hover:border-white/5"
+								>
 									<div className="flex items-center gap-4">
-										<div className={cn(
-											"w-12 h-12 rounded-2xl flex items-center justify-center font-black text-xl shadow-lg transition-transform group-hover:scale-110 duration-300",
-											t.type === "EXPENSE" ? "bg-red-500/10 text-red-500 shadow-red-500/10" : "bg-emerald-500/10 text-emerald-500 shadow-emerald-500/10"
-										)}>
+										<div
+											className={cn(
+												"w-12 h-12 rounded-2xl flex items-center justify-center font-black text-xl shadow-lg transition-transform group-hover:scale-110 duration-300",
+												t.type === "EXPENSE"
+													? "bg-red-500/10 text-red-500 shadow-red-500/10"
+													: "bg-emerald-500/10 text-emerald-500 shadow-emerald-500/10",
+											)}
+										>
 											{t.type === "EXPENSE" ? "-" : "+"}
 										</div>
 										<div className="space-y-0.5">
@@ -166,16 +170,25 @@ export function DashboardOverview({ accounts, transactions }: Props) {
 									<div
 										className={cn(
 											"flex flex-col items-end gap-1",
-											t.type === "EXPENSE" ? "text-red-400" : "text-emerald-400",
+											t.type === "EXPENSE"
+												? "text-red-400"
+												: "text-emerald-400",
 										)}
 									>
 										<span className="text-xl font-black tabular-nums tracking-tighter">
-											{t.type === "EXPENSE" ? "-" : "+"}${t.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+											{t.type === "EXPENSE" ? "-" : "+"}$
+											{t.amount.toLocaleString(undefined, {
+												minimumFractionDigits: 2,
+											})}
 										</span>
-										<div className={cn(
-											"px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-widest border",
-											t.type === "EXPENSE" ? "bg-red-500/5 border-red-500/20" : "bg-emerald-500/5 border-emerald-500/20"
-										)}>
+										<div
+											className={cn(
+												"px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-widest border",
+												t.type === "EXPENSE"
+													? "bg-red-500/5 border-red-500/20"
+													: "bg-emerald-500/5 border-emerald-500/20",
+											)}
+										>
 											{t.category}
 										</div>
 									</div>
@@ -186,13 +199,14 @@ export function DashboardOverview({ accounts, transactions }: Props) {
 				</CardContent>
 			</Card>
 
-
 			<Card className="glass-panel border-white/10 shadow-2xl overflow-hidden hover:shadow-primary/5 transition-all duration-500">
 				<CardHeader className="bg-white/5 border-b border-white/10">
 					<CardTitle className="text-xl font-black tracking-tight">
 						Expense Distribution
 					</CardTitle>
-					<p className="text-xs text-muted-foreground font-bold uppercase tracking-widest mt-1">Current Month Statistics</p>
+					<p className="text-xs text-muted-foreground font-bold uppercase tracking-widest mt-1">
+						Current Month Statistics
+					</p>
 				</CardHeader>
 				<CardContent className="pt-10 pb-10">
 					{pieChartData.length === 0 ? (
@@ -207,9 +221,14 @@ export function DashboardOverview({ accounts, transactions }: Props) {
 					) : (
 						<div className="h-[350px] relative">
 							<div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-10">
-								<span className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] mb-1">Total Spending</span>
+								<span className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] mb-1">
+									Total Spending
+								</span>
 								<span className="text-3xl font-black tracking-tighter">
-									${Object.values(expensesByCategory).reduce((a, b) => a + b, 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+									$
+									{Object.values(expensesByCategory)
+										.reduce((a, b) => a + b, 0)
+										.toLocaleString(undefined, { minimumFractionDigits: 2 })}
 								</span>
 							</div>
 							{!mounted ? (
@@ -245,14 +264,35 @@ export function DashboardOverview({ accounts, transactions }: Props) {
 													return (
 														<div className="glass-panel border-white/10 p-4 shadow-2xl scale-110">
 															<div className="flex items-center gap-3 mb-2">
-																<div className="w-3 h-3 rounded-full" style={{ background: (payload[0].payload as any).fill || COLORS[0] }} />
-																<p className="text-xs font-black uppercase text-muted-foreground tracking-widest">{payload[0].name}</p>
+																<div
+																	className="w-3 h-3 rounded-full"
+																	style={{
+																		background:
+																			(payload[0].payload as { fill?: string })?.fill ?? COLORS[0],
+																	}}
+																/>
+																<p className="text-xs font-black uppercase text-muted-foreground tracking-widest">
+																	{payload[0].name}
+																</p>
 															</div>
 															<p className="text-2xl font-black tabular-nums tracking-tighter">
-																${typeof payload[0].value === 'number' ? payload[0].value.toLocaleString() : '0.00'}
+																$
+																{typeof payload[0].value === "number"
+																	? payload[0].value.toLocaleString()
+																	: "0.00"}
 															</p>
 															<p className="text-[10px] font-black text-primary uppercase mt-1">
-																{((typeof payload[0].value === 'number' ? payload[0].value : 0) / Object.values(expensesByCategory).reduce((a, b) => a + b, 0) * 100).toFixed(1)}% of total
+																{(
+																	((typeof payload[0].value === "number"
+																		? payload[0].value
+																		: 0) /
+																		Object.values(expensesByCategory).reduce(
+																			(a, b) => a + b,
+																			0,
+																		)) *
+																	100
+																).toFixed(1)}
+																% of total
 															</p>
 														</div>
 													);
@@ -264,7 +304,11 @@ export function DashboardOverview({ accounts, transactions }: Props) {
 											verticalAlign="bottom"
 											align="center"
 											iconType="circle"
-											formatter={(value) => <span className="text-[10px] font-black uppercase text-muted-foreground tracking-widest mx-2">{value}</span>}
+											formatter={(value) => (
+												<span className="text-[10px] font-black uppercase text-muted-foreground tracking-widest mx-2">
+													{value}
+												</span>
+											)}
 										/>
 									</PieChart>
 								</ResponsiveContainer>

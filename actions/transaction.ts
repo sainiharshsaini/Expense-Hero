@@ -5,9 +5,9 @@ import { revalidatePath } from "next/cache";
 import { authRequired } from "@/lib/auth/auth-utils";
 import prisma from "@/lib/prisma";
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
-
-const serializeAmount = (obj: any) => ({
+const serializeAmount = (
+	obj: { amount: { toNumber: () => number } } & Record<string, unknown>,
+) => ({
 	...obj,
 	amount: obj.amount.toNumber(),
 });
@@ -75,7 +75,21 @@ export async function createTransaction(data: CreateTransactionData) {
 	}
 }
 
-export async function getTransaction(id: any) {
+export type SerializedTransactionForForm = {
+	id: string;
+	type: "EXPENSE" | "INCOME";
+	amount: number;
+	description: string | null;
+	accountId: string;
+	category: string;
+	date: Date;
+	isRecurring: boolean;
+	recurringInterval?: "DAILY" | "WEEKLY" | "MONTHLY" | "YEARLY";
+};
+
+export async function getTransaction(
+	id: string,
+): Promise<SerializedTransactionForForm> {
 	const session = await authRequired();
 	const userId = session.user.id;
 
@@ -88,10 +102,13 @@ export async function getTransaction(id: any) {
 
 	if (!transaction) throw new Error("Transaction not found");
 
-	return serializeAmount(transaction);
+	return serializeAmount(transaction) as unknown as SerializedTransactionForForm;
 }
 
-export async function updateTransaction(id: any, data: any) {
+export async function updateTransaction(
+	id: string,
+	data: Partial<CreateTransactionData>,
+) {
 	try {
 		const session = await authRequired();
 		const userId = session.user.id;
@@ -114,7 +131,7 @@ export async function updateTransaction(id: any, data: any) {
 				: originalTransaction.amount.toNumber();
 
 		const newBalanceChange =
-			data.type === "EXPENSE" ? -data.amount : data.amount;
+			data.type === "EXPENSE" ? -(data.amount ?? 0) : (data.amount ?? 0);
 
 		const netBalanceChange = newBalanceChange - oldBalanceChange;
 
@@ -127,10 +144,10 @@ export async function updateTransaction(id: any, data: any) {
 				data: {
 					...data,
 					nextRecurringDate:
-						data.isRecurring && data.recurringInterval
+						data.isRecurring && data.recurringInterval && data.date
 							? calculateNextRecurringDate(data.date, data.recurringInterval)
 							: null,
-				},
+				} as Parameters<typeof tx.transaction.update>[0]["data"],
 			});
 
 			await tx.financialAccount.update({
@@ -153,7 +170,6 @@ export async function updateTransaction(id: any, data: any) {
 		throw new Error((error as Error).message);
 	}
 }
-
 
 export async function getUserTransactions(query = {}) {
 	try {
@@ -179,7 +195,6 @@ export async function getUserTransactions(query = {}) {
 	}
 }
 
-
 interface ScannedReceiptData {
 	amount: number;
 	date: Date;
@@ -188,20 +203,17 @@ interface ScannedReceiptData {
 	merchantName: string;
 }
 
-
 export async function scanReceipt(file: File): Promise<ScannedReceiptData> {
 	try {
-
-		if (!process.env.GEMINI_API_KEY) {
+		const apiKey = process.env.GEMINI_API_KEY;
+		if (!apiKey) {
 			throw new Error("AI service not configured. Please contact support.");
 		}
-
+		const genAI = new GoogleGenerativeAI(apiKey);
 		const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-
 
 		const arrayBuffer = await file.arrayBuffer();
 		const base64String = Buffer.from(arrayBuffer).toString("base64");
-
 
 		const prompt = `
             Analyze this receipt image and extract the following information in JSON format:
@@ -223,7 +235,6 @@ export async function scanReceipt(file: File): Promise<ScannedReceiptData> {
             If it's not a receipt, return an empty object.
         `;
 
-
 		const result = await model.generateContent([
 			{
 				inlineData: {
@@ -234,14 +245,11 @@ export async function scanReceipt(file: File): Promise<ScannedReceiptData> {
 			prompt,
 		]);
 
-
 		const response = await result.response;
 		const text = response.text();
 		const cleanedText = text.replace(/```(?:json)?\n?/g, "").trim();
 
-
 		const data = JSON.parse(cleanedText);
-
 
 		if (!data.amount || !data.date || !data.category) {
 			throw new Error(
@@ -259,7 +267,6 @@ export async function scanReceipt(file: File): Promise<ScannedReceiptData> {
 	} catch (error) {
 		console.error("Error scanning receipt:", error);
 
-
 		if (error instanceof Error) {
 			throw new Error(`Failed to scan receipt: ${error.message}`);
 		}
@@ -269,8 +276,10 @@ export async function scanReceipt(file: File): Promise<ScannedReceiptData> {
 	}
 }
 
-
-function calculateNextRecurringDate(startDate: any, interval: any) {
+function calculateNextRecurringDate(
+	startDate: Date | string,
+	interval: "DAILY" | "WEEKLY" | "MONTHLY" | "YEARLY",
+) {
 	const date = new Date(startDate);
 
 	switch (interval) {

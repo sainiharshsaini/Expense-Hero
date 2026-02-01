@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader2, Lock, Mail, UserPlus } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -27,7 +28,6 @@ import {
 	FormMessage,
 } from "../ui/form";
 import { Input } from "../ui/input";
-import { Loader2, UserPlus, Mail, Lock } from "lucide-react";
 
 const RegisterForm = () => {
 	const router = useRouter();
@@ -44,7 +44,7 @@ const RegisterForm = () => {
 	const onSubmit = async (values: RegisterFormValues) => {
 		await authClient.signUp.email(
 			{
-				name: values.email.split('@')[0],
+				name: values.email.split("@")[0],
 				email: values.email,
 				password: values.password,
 				callbackURL: "/dashboard",
@@ -71,7 +71,9 @@ const RegisterForm = () => {
 					<div className="mx-auto mb-4 h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center">
 						<UserPlus className="h-6 w-6 text-primary" />
 					</div>
-					<CardTitle className="text-2xl font-bold tracking-tight">Create Account</CardTitle>
+					<CardTitle className="text-2xl font-bold tracking-tight">
+						Create Account
+					</CardTitle>
 					<CardDescription className="text-base text-muted-foreground">
 						Enter your details to get started
 					</CardDescription>
@@ -183,6 +185,7 @@ const RegisterForm = () => {
 									fill="currentColor"
 									className="mr-2 h-4 w-4"
 								>
+									<title>Google Icon</title>
 									<path stroke="none" d="M0 0h24v24H0z" fill="none" />
 									<path d="M12 2a9.96 9.96 0 0 1 6.29 2.226a1 1 0 0 1 .04 1.52l-1.51 1.362a1 1 0 0 1 -1.265 .06a6 6 0 1 0 2.103 6.836l.001 -.004h-3.66a1 1 0 0 1 -.992 -.883l-.007 -.117v-2a1 1 0 0 1 1 -1h6.945a1 1 0 0 1 .994 .89c.04 .367 .061 .737 .061 1.11c0 5.523 -4.477 10 -10 10s-10 -4.477 -10 -10s4.477 -10 10 -10z" />
 								</svg>

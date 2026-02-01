@@ -49,7 +49,7 @@ const AccountCard: React.FC<AccountCardProps> = ({ account }) => {
 			typeof data === "object" &&
 			data !== null &&
 			"success" in data &&
-			(data as any).success
+			(data as { success: boolean }).success
 		) {
 			toast.success("Default account updated successfully");
 		}

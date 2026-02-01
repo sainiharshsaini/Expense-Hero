@@ -99,7 +99,10 @@ const CreateAccountDrawer: React.FC<CreateAccountDrawerProps> = ({
 					<div className="px-6 pb-8">
 						<form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
 							<div className="space-y-2">
-								<label htmlFor="name" className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+								<label
+									htmlFor="name"
+									className="text-xs font-bold uppercase tracking-widest text-muted-foreground"
+								>
 									Account Name
 								</label>
 								<Input
@@ -109,13 +112,18 @@ const CreateAccountDrawer: React.FC<CreateAccountDrawerProps> = ({
 									className="h-12 rounded-xl bg-white/[0.03] border-white/10 px-4 font-medium focus-visible:ring-primary/20"
 								/>
 								{errors.name && (
-									<p className="text-xs font-semibold text-red-500">{errors.name.message}</p>
+									<p className="text-xs font-semibold text-red-500">
+										{errors.name.message}
+									</p>
 								)}
 							</div>
 
 							<div className="grid gap-4 sm:grid-cols-2">
 								<div className="space-y-2">
-									<label htmlFor="type" className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+									<label
+										htmlFor="type"
+										className="text-xs font-bold uppercase tracking-widest text-muted-foreground"
+									>
 										Account Type
 									</label>
 									<Select
@@ -124,25 +132,39 @@ const CreateAccountDrawer: React.FC<CreateAccountDrawerProps> = ({
 										}
 										defaultValue={watch("type")}
 									>
-										<SelectTrigger id="type" className="h-12 rounded-xl bg-white/[0.03] border-white/10 font-medium focus:ring-primary/20">
+										<SelectTrigger
+											id="type"
+											className="h-12 rounded-xl bg-white/[0.03] border-white/10 font-medium focus:ring-primary/20"
+										>
 											<SelectValue placeholder="Select Type" />
 										</SelectTrigger>
 										<SelectContent className="glass-panel border-white/10">
-											<SelectItem value="CURRENT" className="font-medium">Current</SelectItem>
-											<SelectItem value="SAVINGS" className="font-medium">Savings</SelectItem>
+											<SelectItem value="CURRENT" className="font-medium">
+												Current
+											</SelectItem>
+											<SelectItem value="SAVINGS" className="font-medium">
+												Savings
+											</SelectItem>
 										</SelectContent>
 									</Select>
 									{errors.type && (
-										<p className="text-xs font-semibold text-red-500">{errors.type.message}</p>
+										<p className="text-xs font-semibold text-red-500">
+											{errors.type.message}
+										</p>
 									)}
 								</div>
 
 								<div className="space-y-2">
-									<label htmlFor="balance" className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+									<label
+										htmlFor="balance"
+										className="text-xs font-bold uppercase tracking-widest text-muted-foreground"
+									>
 										Initial Balance
 									</label>
 									<div className="relative">
-										<div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground font-bold">$</div>
+										<div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground font-bold">
+											$
+										</div>
 										<Input
 											{...register("balance")}
 											id="balance"
@@ -153,7 +175,9 @@ const CreateAccountDrawer: React.FC<CreateAccountDrawerProps> = ({
 										/>
 									</div>
 									{errors.balance && (
-										<p className="text-xs font-semibold text-red-500">{errors.balance.message}</p>
+										<p className="text-xs font-semibold text-red-500">
+											{errors.balance.message}
+										</p>
 									)}
 								</div>
 							</div>
@@ -180,7 +204,11 @@ const CreateAccountDrawer: React.FC<CreateAccountDrawerProps> = ({
 
 							<div className="grid grid-cols-2 gap-4 pt-4">
 								<DrawerClose asChild>
-									<Button type="button" variant="ghost" className="h-12 rounded-xl font-bold hover:bg-white/5">
+									<Button
+										type="button"
+										variant="ghost"
+										className="h-12 rounded-xl font-bold hover:bg-white/5"
+									>
 										Cancel
 									</Button>
 								</DrawerClose>

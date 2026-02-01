@@ -7,15 +7,16 @@ import {
 	ChevronRight,
 	ChevronUp,
 	Clock,
+	Download,
 	MoreHorizontal,
 	RefreshCw,
 	Search,
 	Trash,
 	X,
-	Download,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
+import { BarLoader } from "react-spinners";
 import { toast } from "sonner";
 import { bulkDeleteTransactions } from "@/actions/account";
 import { Badge } from "@/components/ui/badge";
@@ -53,18 +54,17 @@ import {
 import { categoryColors } from "@/data/categories";
 import useFetch from "@/hooks/useFetch";
 import { cn } from "@/lib/utils";
-import { BarLoader } from "react-spinners";
 
 interface Transaction {
 	id: string;
-	date: string;
-	description: string;
+	date: string | Date;
+	description?: string | null;
 	category: string;
 	amount: number;
 	type: "INCOME" | "EXPENSE";
-	isRecurring: boolean;
+	isRecurring?: boolean;
 	recurringInterval?: keyof typeof RECURRING_INTERVALS;
-	nextRecurringDate?: string;
+	nextRecurringDate?: string | Date | null;
 }
 
 const ITEMS_PER_PAGE = 10;
@@ -233,7 +233,10 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
 		const url = URL.createObjectURL(blob);
 		const link = document.createElement("a");
 		link.setAttribute("href", url);
-		link.setAttribute("download", `transactions_${format(new Date(), "yyyy-MM-dd")}.csv`);
+		link.setAttribute(
+			"download",
+			`transactions_${format(new Date(), "yyyy-MM-dd")}.csv`,
+		);
 		link.style.visibility = "hidden";
 		document.body.appendChild(link);
 		link.click();
@@ -263,9 +266,15 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
 							<SelectValue placeholder="All Types" />
 						</SelectTrigger>
 						<SelectContent className="glass-panel border-white/10">
-							<SelectItem value="all" className="font-bold">All Types</SelectItem>
-							<SelectItem value="INCOME" className="font-bold text-emerald-400">Income</SelectItem>
-							<SelectItem value="EXPENSE" className="font-bold text-red-400">Expense</SelectItem>
+							<SelectItem value="all" className="font-bold">
+								All Types
+							</SelectItem>
+							<SelectItem value="INCOME" className="font-bold text-emerald-400">
+								Income
+							</SelectItem>
+							<SelectItem value="EXPENSE" className="font-bold text-red-400">
+								Expense
+							</SelectItem>
 						</SelectContent>
 					</Select>
 
@@ -277,9 +286,18 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
 							<SelectValue placeholder="Schedule" />
 						</SelectTrigger>
 						<SelectContent className="glass-panel border-white/10">
-							<SelectItem value="all" className="font-bold">All Schedules</SelectItem>
-							<SelectItem value="recurring" className="font-bold text-primary">Recurring Only</SelectItem>
-							<SelectItem value="non-recurring" className="font-bold text-muted-foreground">One-time Only</SelectItem>
+							<SelectItem value="all" className="font-bold">
+								All Schedules
+							</SelectItem>
+							<SelectItem value="recurring" className="font-bold text-primary">
+								Recurring Only
+							</SelectItem>
+							<SelectItem
+								value="non-recurring"
+								className="font-bold text-muted-foreground"
+							>
+								One-time Only
+							</SelectItem>
 						</SelectContent>
 					</Select>
 
@@ -335,9 +353,12 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
 							>
 								<div className="flex items-center font-bold text-muted-foreground group-hover:text-primary transition-colors">
 									Date
-									{sortConfig.field === "date" && (
-										sortConfig.direction === "asc" ? <ChevronUp className="ml-1 h-4 w-4" /> : <ChevronDown className="ml-1 h-4 w-4" />
-									)}
+									{sortConfig.field === "date" &&
+										(sortConfig.direction === "asc" ? (
+											<ChevronUp className="ml-1 h-4 w-4" />
+										) : (
+											<ChevronDown className="ml-1 h-4 w-4" />
+										))}
 								</div>
 							</TableHead>
 							<TableHead>Description</TableHead>
@@ -347,9 +368,12 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
 							>
 								<div className="flex items-center font-bold text-muted-foreground group-hover:text-primary transition-colors">
 									Category
-									{sortConfig.field === "category" && (
-										sortConfig.direction === "asc" ? <ChevronUp className="ml-1 h-4 w-4" /> : <ChevronDown className="ml-1 h-4 w-4" />
-									)}
+									{sortConfig.field === "category" &&
+										(sortConfig.direction === "asc" ? (
+											<ChevronUp className="ml-1 h-4 w-4" />
+										) : (
+											<ChevronDown className="ml-1 h-4 w-4" />
+										))}
 								</div>
 							</TableHead>
 							<TableHead
@@ -358,9 +382,12 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
 							>
 								<div className="flex items-center justify-end font-bold text-muted-foreground group-hover:text-primary transition-colors">
 									Amount
-									{sortConfig.field === "amount" && (
-										sortConfig.direction === "asc" ? <ChevronUp className="ml-1 h-4 w-4" /> : <ChevronDown className="ml-1 h-4 w-4" />
-									)}
+									{sortConfig.field === "amount" &&
+										(sortConfig.direction === "asc" ? (
+											<ChevronUp className="ml-1 h-4 w-4" />
+										) : (
+											<ChevronDown className="ml-1 h-4 w-4" />
+										))}
 								</div>
 							</TableHead>
 							<TableHead className="text-right pr-6">Recurring</TableHead>
@@ -370,13 +397,19 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
 					<TableBody>
 						{paginationTransactions.length === 0 ? (
 							<TableRow>
-								<TableCell colSpan={7} className="h-40 text-center text-muted-foreground font-medium">
+								<TableCell
+									colSpan={7}
+									className="h-40 text-center text-muted-foreground font-medium"
+								>
 									No transactions found.
 								</TableCell>
 							</TableRow>
 						) : (
 							paginationTransactions.map((transaction) => (
-								<TableRow key={transaction.id} className="border-white/5 hover:bg-white/[0.02] transition-colors h-16 group">
+								<TableRow
+									key={transaction.id}
+									className="border-white/5 hover:bg-white/[0.02] transition-colors h-16 group"
+								>
 									<TableCell className="pl-6">
 										<Checkbox
 											onCheckedChange={() => handleSelect(transaction.id)}
@@ -394,18 +427,24 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
 										<span
 											className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider"
 											style={{
-												backgroundColor: (categoryColors as any)[transaction.category] + "15",
-												color: (categoryColors as any)[transaction.category]
+												backgroundColor:
+													(categoryColors as any)[transaction.category] + "15",
+												color: (categoryColors as any)[transaction.category],
 											}}
 										>
 											{transaction.category}
 										</span>
 									</TableCell>
-									<TableCell className={cn(
-										"text-right font-black tabular-nums h-16",
-										transaction.type === "INCOME" ? "text-emerald-400" : "text-red-400"
-									)}>
-										{transaction.type === "INCOME" ? "+" : "-"}${Math.abs(transaction.amount).toFixed(2)}
+									<TableCell
+										className={cn(
+											"text-right font-black tabular-nums h-16",
+											transaction.type === "INCOME"
+												? "text-emerald-400"
+												: "text-red-400",
+										)}
+									>
+										{transaction.type === "INCOME" ? "+" : "-"}$
+										{Math.abs(transaction.amount).toFixed(2)}
 									</TableCell>
 									<TableCell className="text-right pr-6">
 										{transaction.isRecurring ? (
@@ -415,29 +454,47 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
 														<div className="flex items-center justify-end gap-2 text-primary group-hover:scale-110 transition-transform">
 															<RefreshCw className="h-4 w-4" />
 															<span className="text-[10px] font-black uppercase tracking-tight">
-																{RECURRING_INTERVALS[transaction.recurringInterval!] || "Recurring"}
+																{RECURRING_INTERVALS[
+																	transaction.recurringInterval!
+																] || "Recurring"}
 															</span>
 														</div>
 													</TooltipTrigger>
 													<TooltipContent className="glass-panel border-white/10 font-bold">
-														Next: {format(new Date(transaction.nextRecurringDate!), "MMM d")}
+														Next:{" "}
+														{format(
+															new Date(transaction.nextRecurringDate!),
+															"MMM d",
+														)}
 													</TooltipContent>
 												</Tooltip>
 											</TooltipProvider>
 										) : (
-											<span className="text-[10px] font-black text-muted-foreground uppercase tracking-tight opacity-30">One-time</span>
+											<span className="text-[10px] font-black text-muted-foreground uppercase tracking-tight opacity-30">
+												One-time
+											</span>
 										)}
 									</TableCell>
 									<TableCell className="pr-6">
 										<DropdownMenu>
 											<DropdownMenuTrigger asChild>
-												<Button variant="ghost" className="h-8 w-8 p-0 rounded-full hover:bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity">
+												<Button
+													variant="ghost"
+													className="h-8 w-8 p-0 rounded-full hover:bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"
+												>
 													<MoreHorizontal className="h-4 w-4" />
 												</Button>
 											</DropdownMenuTrigger>
-											<DropdownMenuContent align="end" className="glass-panel border-white/10 min-w-[160px]">
+											<DropdownMenuContent
+												align="end"
+												className="glass-panel border-white/10 min-w-[160px]"
+											>
 												<DropdownMenuItem
-													onClick={() => router.push(`/transaction/create?edit=${transaction.id}`)}
+													onClick={() =>
+														router.push(
+															`/transaction/create?edit=${transaction.id}`,
+														)
+													}
 													className="font-bold text-xs"
 												>
 													Edit Transaction
@@ -471,9 +528,13 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
 						<ChevronLeft className="h-4 w-4" />
 					</Button>
 					<div className="flex items-center gap-1.5 px-4 h-10 rounded-xl bg-white/5 border border-white/10">
-						<span className="text-sm font-black text-primary">{currentPage}</span>
+						<span className="text-sm font-black text-primary">
+							{currentPage}
+						</span>
 						<span className="text-xs font-bold text-muted-foreground">/</span>
-						<span className="text-sm font-bold text-muted-foreground">{totalPages}</span>
+						<span className="text-sm font-bold text-muted-foreground">
+							{totalPages}
+						</span>
 					</div>
 					<Button
 						variant="outline"

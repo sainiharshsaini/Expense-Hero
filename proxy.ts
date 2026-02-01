@@ -1,8 +1,14 @@
 import { type NextRequest, NextResponse } from "next/server";
 
-const PROTECTED_PATHS = ["/dashboard", "/account", "/transaction"];
+const PROTECTED_PATHS = [
+	"/dashboard",
+	"/account",
+	"/transaction",
+	"/profile",
+	"/analytics",
+];
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
 	const { pathname } = request.nextUrl;
 
 	const isProtected = PROTECTED_PATHS.some(
@@ -32,7 +38,7 @@ export async function middleware(request: NextRequest) {
 	return NextResponse.next();
 }
 
-// Configure which routes this middleware runs on
+// Configure which routes this proxy runs on
 export const config = {
 	matcher: [
 		/*

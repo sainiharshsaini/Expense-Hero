@@ -1,10 +1,17 @@
 "use server";
 
+import type { ReactNode } from "react";
 import { Resend } from "resend";
 
 const apiKey = process.env.RESEND_API_KEY;
 
-export async function sendEmail({ to, subject, react }: any) {
+interface SendEmailParams {
+	to: string | string[];
+	subject: string;
+	react: ReactNode;
+}
+
+export async function sendEmail({ to, subject, react }: SendEmailParams) {
 	if (!apiKey) {
 		console.error("RESEND_API_KEY is missing!");
 		return { success: false, error: "Missing Resend API key" };

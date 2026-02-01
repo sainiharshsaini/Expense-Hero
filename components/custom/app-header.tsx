@@ -1,10 +1,10 @@
 import { BarChart3, LayoutDashboard, PenBox } from "lucide-react";
 import { headers } from "next/headers";
+import Image from "next/image";
 import Link from "next/link";
 import { auth } from "@/lib/auth/auth";
-import { Button } from "../ui/button";
-import Image from "next/image";
 import expenseHeroLogo from "@/public/Expense_Hero.png";
+import { Button } from "../ui/button";
 import { MobileNav } from "./mobile-nav";
 import { UserAvatarDropdown } from "./user-avatar-dropdown";
 
@@ -17,11 +17,15 @@ const AppHeader = async () => {
 
 	return (
 		<header className="fixed top-0 w-full z-50 animate-in fade-in slide-in-from-top duration-700">
-			<nav className="mx-auto my-6 w-[92%] md:max-w-7xl rounded-full px-4 md:px-8 py-3 
+			<nav
+				className="mx-auto my-6 w-[92%] md:max-w-7xl rounded-full px-4 md:px-8 py-3 
 				bg-background/40 backdrop-blur-2xl border border-white/10 shadow-2xl shadow-black/20 
-				flex items-center justify-between transition-all duration-300 hover:border-white/20">
-
-				<Link href="/" className="relative block h-10 w-32 md:h-12 md:w-40 transition-transform hover:scale-105 active:scale-95">
+				flex items-center justify-between transition-all duration-300 hover:border-white/20"
+			>
+				<Link
+					href="/"
+					className="relative block h-10 w-32 md:h-12 md:w-40 transition-transform hover:scale-105 active:scale-95"
+				>
 					<Image
 						src={expenseHeroLogo}
 						alt="Expense Hero Logo"

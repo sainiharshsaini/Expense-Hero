@@ -23,6 +23,11 @@
 			"quoteStyle": "double"
 		}
 	},
+	"css": {
+		"parser": {
+			"cssModules": true
+		}
+	},
 	"assist": {
 		"enabled": true,
 		"actions": {
@@ -30,5 +35,18 @@
 				"organizeImports": "on"
 			}
 		}
-	}
+	},
+	"overrides": [
+		{
+			"includes": [
+				"app/globals.css",
+				"app/(main)/dashboard/loading.tsx",
+				"app/(main)/analytics/loading.tsx",
+				"app/(main)/analytics/_components/spending-summary.tsx"
+			],
+			"linter": {
+				"enabled": false
+			}
+		}
+	]
 }

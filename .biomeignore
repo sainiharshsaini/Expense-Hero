@@ -1,0 +1,3 @@
+app/globals.css
+app/(main)/dashboard/loading.tsx
+app/(main)/analytics/loading.tsx

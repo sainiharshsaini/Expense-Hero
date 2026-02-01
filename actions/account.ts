@@ -4,11 +4,20 @@ import { revalidatePath } from "next/cache";
 import { authRequired } from "@/lib/auth/auth-utils";
 import prisma from "@/lib/prisma";
 
-const serializeTransaction = (obj: any) => {
-	const serialized = { ...obj };
+interface SerializableAmount {
+	balance?: { toNumber: () => number };
+	amount?: { toNumber: () => number };
+}
 
-	if (obj.balance) serialized.balance = obj.balance.toNumber();
-	if (obj.amount) serialized.amount = obj.amount.toNumber();
+const serializeTransaction = (
+	obj: SerializableAmount & Record<string, unknown>,
+) => {
+	const serialized = { ...obj } as Record<string, unknown>;
+
+	if (obj.balance && typeof obj.balance.toNumber === "function")
+		serialized.balance = obj.balance.toNumber();
+	if (obj.amount && typeof obj.amount.toNumber === "function")
+		serialized.amount = obj.amount.toNumber();
 
 	return serialized;
 };
@@ -36,7 +45,30 @@ export async function updateDefaultAccount(accountId: string) {
 	}
 }
 
-export async function getAccountWithTransactions(accountId: string) {
+export type AccountTransaction = {
+	id: string;
+	date: Date | string;
+	amount: number;
+	type: "INCOME" | "EXPENSE";
+	description?: string | null;
+	category: string;
+};
+
+export type AccountWithTransactionsResult = {
+	id: string;
+	name: string;
+	type: string;
+	balance: number;
+	isDefault: boolean;
+	createdAt: Date;
+	updatedAt: Date;
+	_count: { transactions: number };
+	transactions: AccountTransaction[];
+};
+
+export async function getAccountWithTransactions(
+	accountId: string,
+): Promise<AccountWithTransactionsResult | null> {
 	const session = await authRequired();
 	const userId = session.user.id;
 
@@ -57,7 +89,7 @@ export async function getAccountWithTransactions(accountId: string) {
 	return {
 		...serializeTransaction(account),
 		transactions: account.transactions.map(serializeTransaction),
-	};
+	} as AccountWithTransactionsResult;
 }
 
 export async function bulkDeleteTransactions(

@@ -6,7 +6,6 @@ import EmailTemplate from "@/emails/template";
 import prisma from "../prisma";
 import { inngest } from "./client";
 
-
 export const processRecurringTransaction = inngest.createFunction(
 	{
 		id: "process-recurring-transaction",
@@ -93,8 +92,6 @@ export const triggerRecurringTransactions = inngest.createFunction(
 	},
 );
 
-
-
 // Simple interface for financial stats
 interface FinancialStats {
 	totalIncome: number;
@@ -175,7 +172,6 @@ export const generateMonthlyReports = inngest.createFunction(
 	},
 );
 
-
 export const checkBudgetAlerts = inngest.createFunction(
 	{ id: "check-budget-alerts", name: "Check Budget Alerts" },
 	{ cron: "0 */6 * * *" }, // Every 6 hours
@@ -242,7 +238,6 @@ export const checkBudgetAlerts = inngest.createFunction(
 		}
 	},
 );
-
 
 function isTransactionDue(t: any) {
 	if (!t.lastProcessed) return true;

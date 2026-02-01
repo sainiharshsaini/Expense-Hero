@@ -3,6 +3,8 @@ generator client {
   output   = "../lib/generated/prisma"
 }
 
+// Connection URL is configured in prisma.config.ts (Prisma 5+)
+
 datasource db {
   provider = "postgresql"
 }

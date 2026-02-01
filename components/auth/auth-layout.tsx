@@ -10,9 +10,7 @@ const AuthLayout = ({ children }: { children: ReactNode }) => {
 			<div className="absolute top-1/4 -left-20 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl animate-pulse" />
 			<div className="absolute bottom-1/4 -right-20 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl animate-pulse delay-1000" />
 
-			<div className="flex w-full max-w-sm flex-col gap-6 z-10">
-				{children}
-			</div>
+			<div className="flex w-full max-w-sm flex-col gap-6 z-10">{children}</div>
 		</div>
 	);
 };

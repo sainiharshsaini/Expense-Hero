@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { updateBudget } from "@/actions/budget";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import {
 	Card,
 	CardContent,
@@ -16,6 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import useFetch from "@/hooks/useFetch";
+import { cn } from "@/lib/utils";
 
 type Budget = {
 	amount: number;
@@ -44,7 +44,7 @@ const BudgetProgress = ({
 	const handleUpdateBudget = async () => {
 		const amount = parseFloat(newBudget);
 
-		if (isNaN(amount) || amount <= 0) {
+		if (Number.isNaN(amount) || amount <= 0) {
 			toast.error("Please enter a valid amount");
 			return;
 		}
@@ -62,7 +62,7 @@ const BudgetProgress = ({
 			typeof data === "object" &&
 			data !== null &&
 			"success" in data &&
-			(data as any).success
+			(data as { success: boolean }).success
 		) {
 			setIsEditing(false);
 			toast.success("Budget updated successfully");
@@ -121,7 +121,9 @@ const BudgetProgress = ({
 										autoFocus
 										disabled={loading}
 									/>
-									<span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-black text-muted-foreground">$</span>
+									<span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-black text-muted-foreground">
+										$
+									</span>
 								</div>
 								<div className="flex gap-1">
 									<Button
@@ -148,9 +150,13 @@ const BudgetProgress = ({
 							<CardDescription className="text-sm font-medium text-muted-foreground flex items-center gap-2">
 								{initialBudget ? (
 									<>
-										<span className="text-foreground font-black">${currentExpenses.toLocaleString()}</span>
+										<span className="text-foreground font-black">
+											${currentExpenses.toLocaleString()}
+										</span>
 										<span>of</span>
-										<span className="text-primary font-black">${initialBudget.amount.toLocaleString()}</span>
+										<span className="text-primary font-black">
+											${initialBudget.amount.toLocaleString()}
+										</span>
 										<span>spent this month</span>
 									</>
 								) : (
@@ -173,24 +179,28 @@ const BudgetProgress = ({
 						<div className="relative pt-1">
 							<Progress
 								value={percentUsed}
-								className={cn(
-									"h-3 rounded-full bg-white/5",
-									progressColor
-								)}
+								className={cn("h-3 rounded-full bg-white/5", progressColor)}
 							/>
 							<div className="absolute inset-0 h-3 rounded-full bg-white/5 border border-white/5 pointer-events-none" />
 						</div>
 						<div className="flex justify-between items-center">
 							<div className="flex items-center gap-2">
-								<div className={cn("h-2 w-2 rounded-full animate-pulse", progressColor.replace('bg-', 'text-'))} />
+								<div
+									className={cn(
+										"h-2 w-2 rounded-full animate-pulse",
+										progressColor.replace("bg-", "text-"),
+									)}
+								/>
 								<span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">
 									{percentUsed >= 100 ? "Limit Reached" : "Budget Health"}
 								</span>
 							</div>
-							<p className={cn(
-								"text-sm font-black tabular-nums",
-								percentUsed >= 90 ? "text-red-400" : "text-foreground"
-							)}>
+							<p
+								className={cn(
+									"text-sm font-black tabular-nums",
+									percentUsed >= 90 ? "text-red-400" : "text-foreground",
+								)}
+							>
 								{percentUsed.toFixed(1)}% used
 							</p>
 						</div>

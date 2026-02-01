@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { toast } from "sonner";
 
-
 interface UseFetchReturn<T> {
 	data: T | null;
 	loading: boolean;

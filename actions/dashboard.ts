@@ -17,12 +17,19 @@ export type SerializedAccount = {
 	};
 };
 
-const serializeTransaction = (obj: any): SerializedAccount => {
-	const serialized = { ...obj } as SerializedAccount;
+interface AccountWithDecimalBalance extends Omit<SerializedAccount, "balance" | "_count"> {
+	balance: { toNumber: () => number };
+	_count?: { transactions: number };
+}
 
-	if (obj.balance) {
-		serialized.balance = obj.balance.toNumber();
-	}
+const serializeTransaction = (
+	obj: AccountWithDecimalBalance,
+): SerializedAccount => {
+	const serialized = {
+		...obj,
+		balance: obj.balance.toNumber(),
+		_count: obj._count ?? { transactions: 0 },
+	} as unknown as SerializedAccount;
 	return serialized;
 };
 
@@ -46,7 +53,7 @@ export async function createAccount(
 		const userId = session.user.id;
 
 		const balanceFloat = parseFloat(data.balance);
-		if (isNaN(balanceFloat)) throw new Error("Invalid balance amount");
+		if (Number.isNaN(balanceFloat)) throw new Error("Invalid balance amount");
 
 		const existingAccounts = await prisma.financialAccount.findMany({
 			where: { userId },
@@ -119,12 +126,28 @@ export type SerializedTransaction = {
 	updatedAt: Date;
 };
 
-const serializeTransactionData = (obj: any): SerializedTransaction => {
-	const serialized = { ...obj } as SerializedTransaction;
+interface TransactionWithDecimalAmount
+	extends Omit<
+		SerializedTransaction,
+		| "amount"
+		| "description"
+		| "receiptUrl"
+		| "recurringInterval"
+		| "nextRecurringDate"
+		| "lastProcessed"
+	> {
+	amount: { toNumber: () => number };
+	description?: string | null;
+	receiptUrl?: string | null;
+	recurringInterval?: "DAILY" | "WEEKLY" | "MONTHLY" | "YEARLY" | null;
+	nextRecurringDate?: Date | null;
+	lastProcessed?: Date | null;
+}
 
-	if (obj.amount) {
-		serialized.amount = obj.amount.toNumber();
-	}
+const serializeTransactionData = (
+	obj: TransactionWithDecimalAmount,
+): SerializedTransaction => {
+	const serialized = { ...obj, amount: obj.amount.toNumber() } as unknown as SerializedTransaction;
 	return serialized;
 };
 

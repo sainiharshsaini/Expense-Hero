@@ -31,15 +31,14 @@ const HeroSection = () => {
 
 			<div className="container mx-auto px-6 md:px-12 flex flex-col md:flex-row items-center justify-between gap-12 md:gap-8">
 				<div className="flex-1 flex flex-col items-center md:items-start text-center md:text-left space-y-8 z-10">
-
 					<h1 className="text-4xl sm:text-5xl md:text-7xl font-bold tracking-tight leading-tight animate-in fade-in slide-in-from-bottom-6 duration-700 delay-100">
-						Manage Your <br className="hidden md:block" /> Expenses with{' '}
+						Manage Your <br className="hidden md:block" /> Expenses with{" "}
 						<span className="gradient-title">Intelligence.</span>
 					</h1>
 
 					<p className="text-muted-foreground text-lg md:text-xl max-w-xl animate-in fade-in slide-in-from-bottom-6 duration-700 delay-200">
-						AI-driven personal finance platform. Track spending,
-						unlock insights, and optimize your wealth in real-time.
+						AI-driven personal finance platform. Track spending, unlock
+						insights, and optimize your wealth in real-time.
 					</p>
 
 					<div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto animate-in fade-in slide-in-from-bottom-8 duration-700 delay-300">
@@ -67,15 +66,10 @@ const HeroSection = () => {
 							</Button>
 						</Link>
 					</div>
-
-
 				</div>
 
 				<div className="flex-1 w-full max-w-[600px] perspective-1000 z-10 animate-in fade-in zoom-in duration-1000 delay-300">
-					<div
-						ref={imageRef}
-						className="hero-image-wrapper relative group"
-					>
+					<div ref={imageRef} className="hero-image-wrapper relative group">
 						<div className="absolute -inset-1 bg-linear-to-r from-indigo-500 to-emerald-500 rounded-2xl blur opacity-30 group-hover:opacity-50 transition duration-1000"></div>
 
 						<div className="hero-image glass-panel p-2 rounded-2xl relative overflow-hidden">
@@ -110,7 +104,9 @@ const HeroSection = () => {
 										</svg>
 									</div>
 									<div>
-										<p className="text-xs text-muted-foreground">Total Savings</p>
+										<p className="text-xs text-muted-foreground">
+											Total Savings
+										</p>
 										<p className="font-bold text-lg">+$2,450.00</p>
 									</div>
 								</div>
@@ -121,6 +117,6 @@ const HeroSection = () => {
 			</div>
 		</section>
 	);
-}
+};
 
 export default HeroSection;
