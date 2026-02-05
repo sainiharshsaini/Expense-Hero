@@ -11,9 +11,37 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-	title: "Expense-Hero",
+	title: {
+		default: "Expense-Hero - Your Financial Guardian",
+		template: "%s | Expense-Hero",
+	},
 	description:
-		"A full-stack web application to manage and track your personal finances easily.",
+		"Expense-Hero is a powerful, full-stack web application designed to help you track expenses, manage budgets, and gain insights into your financial health with ease.",
+	keywords: [
+		"expense tracker",
+		"budget manager",
+		"personal finance",
+		"finance app",
+		"dashboard",
+		"analytics",
+	],
+	authors: [{ name: "Harsh" }],
+	creator: "Harsh",
+	openGraph: {
+		type: "website",
+		locale: "en_US",
+		url: "https://expense-hero-harsh.vercel.app", // Assuming this is the URL from earlier
+		title: "Expense-Hero - Your Financial Guardian",
+		description:
+			"Expense-Hero is a powerful, full-stack web application designed to help you track expenses, manage budgets, and gain insights into your financial health with ease.",
+		siteName: "Expense-Hero",
+	},
+	twitter: {
+		card: "summary_large_image",
+		title: "Expense-Hero - Your Financial Guardian",
+		description:
+			"Expense-Hero is a powerful, full-stack web application designed to help you track expenses, manage budgets, and gain insights into your financial health with ease.",
+	},
 };
 
 export default function RootLayout({
