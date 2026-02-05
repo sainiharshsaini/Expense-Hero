@@ -22,6 +22,8 @@ interface BudgetData {
 	currentExpenses: number;
 }
 
+export const dynamic = "force-dynamic";
+
 export default async function DashboardPage() {
 	const session = await authRequired();
 
