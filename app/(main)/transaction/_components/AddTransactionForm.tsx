@@ -171,7 +171,7 @@ export function AddTransactionForm({
 				onSubmit={handleSubmit(onSubmit)}
 				className="space-y-8 glass-panel border-white/10 p-8 rounded-3xl shadow-2xl relative overflow-hidden"
 			>
-				<div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-emerald-500" />
+				<div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-indigo-500 via-purple-500 to-emerald-500" />
 
 				{!editMode && (
 					<div className="bg-white/5 rounded-2xl p-4 border border-white/10 overflow-hidden relative group transition-all duration-300 hover:bg-white/10">
@@ -181,13 +181,22 @@ export function AddTransactionForm({
 
 				<div className="grid gap-8 md:grid-cols-2">
 					<div className="space-y-4">
-						<label className="text-sm font-semibold tracking-wide text-muted-foreground uppercase">
+						<label
+							className="text-sm font-semibold tracking-wide text-muted-foreground uppercase"
+							htmlFor="transaction-type-select"
+						>
 							Transaction Type
 						</label>
 						<Select
 							onValueChange={(value: any) => setValue("type", value)}
 							defaultValue={type}
 						>
+							<SelectTrigger
+								id="transaction-type-select"
+								className="h-12 bg-white/5 border-white/10 focus-visible:ring-primary/20 transition-all text-lg font-medium"
+							>
+								<SelectValue placeholder="Select type" />
+							</SelectTrigger>
 							<SelectTrigger className="h-12 bg-white/5 border-white/10 focus-visible:ring-primary/20 transition-all text-lg font-medium">
 								<SelectValue placeholder="Select type" />
 							</SelectTrigger>
@@ -214,7 +223,10 @@ export function AddTransactionForm({
 					</div>
 
 					<div className="space-y-4">
-						<label className="text-sm font-semibold tracking-wide text-muted-foreground uppercase">
+						<label
+							className="text-sm font-semibold tracking-wide text-muted-foreground uppercase"
+							htmlFor="amount-input"
+						>
 							Amount
 						</label>
 						<div className="relative group">
@@ -239,13 +251,22 @@ export function AddTransactionForm({
 
 				<div className="grid gap-8 md:grid-cols-2">
 					<div className="space-y-4">
-						<label className="text-sm font-semibold tracking-wide text-muted-foreground uppercase">
+						<label
+							className="text-sm font-semibold tracking-wide text-muted-foreground uppercase"
+							htmlFor="account-select"
+						>
 							Account
 						</label>
 						<Select
 							onValueChange={(value) => setValue("accountId", value)}
 							defaultValue={getValues("accountId")}
 						>
+							<SelectTrigger
+								id="account-select"
+								className="h-12 bg-white/5 border-white/10 focus-visible:ring-primary/20 transition-all font-medium"
+							>
+								<SelectValue placeholder="Select account" />
+							</SelectTrigger>
 							<SelectTrigger className="h-12 bg-white/5 border-white/10 focus-visible:ring-primary/20 transition-all font-medium">
 								<SelectValue placeholder="Select account" />
 							</SelectTrigger>
@@ -280,13 +301,22 @@ export function AddTransactionForm({
 					</div>
 
 					<div className="space-y-4">
-						<label className="text-sm font-semibold tracking-wide text-muted-foreground uppercase">
+						<label
+							className="text-sm font-semibold tracking-wide text-muted-foreground uppercase"
+							htmlFor="category-select"
+						>
 							Category
 						</label>
 						<Select
 							onValueChange={(value) => setValue("category", value)}
 							defaultValue={getValues("category")}
 						>
+							<SelectTrigger
+								id="category-select"
+								className="h-12 bg-white/5 border-white/10 focus-visible:ring-primary/20 transition-all font-medium"
+							>
+								<SelectValue placeholder="Select category" />
+							</SelectTrigger>
 							<SelectTrigger className="h-12 bg-white/5 border-white/10 focus-visible:ring-primary/20 transition-all font-medium">
 								<SelectValue placeholder="Select category" />
 							</SelectTrigger>
@@ -312,13 +342,17 @@ export function AddTransactionForm({
 
 				<div className="grid gap-8 md:grid-cols-2">
 					<div className="space-y-4">
-						<label className="text-sm font-semibold tracking-wide text-muted-foreground uppercase">
+						<label
+							className="text-sm font-semibold tracking-wide text-muted-foreground uppercase"
+							htmlFor="date-picker"
+						>
 							Date
 						</label>
 						<Popover>
 							<PopoverTrigger asChild>
 								<Button
 									variant="outline"
+									id="date-picker"
 									className={cn(
 										"w-full h-12 pl-4 text-left font-medium bg-white/5 border-white/10 hover:bg-white/10 transition-all",
 										!date && "text-muted-foreground",
@@ -351,10 +385,14 @@ export function AddTransactionForm({
 					</div>
 
 					<div className="space-y-4">
-						<label className="text-sm font-semibold tracking-wide text-muted-foreground uppercase">
+						<label
+							className="text-sm font-semibold tracking-wide text-muted-foreground uppercase"
+							htmlFor="description"
+						>
 							Description
 						</label>
 						<Input
+							id="description"
 							placeholder="Enter description"
 							className="h-12 bg-white/5 border-white/10 focus-visible:ring-primary/20 transition-all font-medium"
 							{...register("description")}
@@ -369,7 +407,10 @@ export function AddTransactionForm({
 
 				<div className="flex flex-row items-center justify-between rounded-2xl border border-white/10 px-6 py-5 bg-white/5 hover:bg-white/10 transition-colors group">
 					<div className="space-y-1">
-						<label className="text-lg font-bold tracking-tight">
+						<label
+							className="text-lg font-bold tracking-tight"
+							htmlFor="recurring-switch"
+						>
 							Recurring Transaction
 						</label>
 						<div className="text-sm text-muted-foreground font-medium">
@@ -385,12 +426,18 @@ export function AddTransactionForm({
 
 				{isRecurring && (
 					<div className="space-y-4 animate-in slide-in-from-top-4 duration-500">
-						<label className="text-sm font-semibold tracking-wide text-muted-foreground uppercase">
+						<label
+							className="text-sm font-semibold tracking-wide text-muted-foreground uppercase"
+							htmlFor="recurring-interval"
+						>
 							Recurring Interval
 						</label>
 						<Select
-							onValueChange={(value: any) =>
-								setValue("recurringInterval", value)
+							onValueChange={(value) =>
+								setValue(
+									"recurringInterval",
+									value as "DAILY" | "WEEKLY" | "MONTHLY" | "YEARLY",
+								)
 							}
 							defaultValue={getValues("recurringInterval")}
 						>

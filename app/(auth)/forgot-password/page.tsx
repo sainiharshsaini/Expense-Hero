@@ -75,7 +75,7 @@ export default function ForgotPasswordPage() {
 
 			<div className="w-full max-w-md mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700">
 				<Card className="glass-panel border-white/10 shadow-2xl overflow-hidden relative">
-					<div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500" />
+					<div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-orange-500 via-amber-500 to-yellow-500" />
 
 					<CardHeader className="text-center pt-10 pb-6 space-y-2">
 						<CardTitle className="text-3xl font-bold tracking-tight">
@@ -134,7 +134,7 @@ export default function ForgotPasswordPage() {
 														<Input
 															type="email"
 															placeholder="you@example.com"
-															className="h-12 rounded-xl bg-white/[0.03] border-white/10 pl-11 font-medium focus-visible:ring-primary/20"
+															className="h-12 rounded-xl bg-white/3 border-white/10 pl-11 font-medium focus-visible:ring-primary/20"
 															{...field}
 														/>
 													</div>

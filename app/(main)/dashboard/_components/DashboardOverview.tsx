@@ -147,7 +147,7 @@ export function DashboardOverview({ accounts, transactions }: Props) {
 									<div className="flex items-center gap-4">
 										<div
 											className={cn(
-												"w-12 h-12 rounded-2xl flex items-center justify-center font-black text-xl shadow-lg transition-transform group-hover:scale-110 duration-300",
+												"w-12 h-12 rounded-2xl flex items-center justify-center font-semibold text-xl shadow-lg transition-transform group-hover:scale-110 duration-300",
 												t.type === "EXPENSE"
 													? "bg-red-500/10 text-red-500 shadow-red-500/10"
 													: "bg-emerald-500/10 text-emerald-500 shadow-emerald-500/10",
@@ -156,10 +156,10 @@ export function DashboardOverview({ accounts, transactions }: Props) {
 											{t.type === "EXPENSE" ? "-" : "+"}
 										</div>
 										<div className="space-y-0.5">
-											<p className="text-base font-black tracking-tight leading-none">
+											<p className="text-base font-semibold tracking-tight leading-none">
 												{t.description || "Cash Transfer"}
 											</p>
-											<p className="text-[10px] font-black text-muted-foreground uppercase tracking-wider">
+											<p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
 												{format(
 													t.date instanceof Date ? t.date : new Date(t.date),
 													"MMMM dd, yyyy",
@@ -175,7 +175,7 @@ export function DashboardOverview({ accounts, transactions }: Props) {
 												: "text-emerald-400",
 										)}
 									>
-										<span className="text-xl font-black tabular-nums tracking-tighter">
+										<span className="text-md font-semibold tabular-nums tracking-tighter">
 											{t.type === "EXPENSE" ? "-" : "+"}$
 											{t.amount.toLocaleString(undefined, {
 												minimumFractionDigits: 2,
@@ -183,7 +183,7 @@ export function DashboardOverview({ accounts, transactions }: Props) {
 										</span>
 										<div
 											className={cn(
-												"px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-widest border",
+												"px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest border",
 												t.type === "EXPENSE"
 													? "bg-red-500/5 border-red-500/20"
 													: "bg-emerald-500/5 border-emerald-500/20",
@@ -268,7 +268,8 @@ export function DashboardOverview({ accounts, transactions }: Props) {
 																	className="w-3 h-3 rounded-full"
 																	style={{
 																		background:
-																			(payload[0].payload as { fill?: string })?.fill ?? COLORS[0],
+																			(payload[0].payload as any).fill ||
+																			COLORS[0],
 																	}}
 																/>
 																<p className="text-xs font-black uppercase text-muted-foreground tracking-widest">
