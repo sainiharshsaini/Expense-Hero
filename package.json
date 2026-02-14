@@ -12,7 +12,9 @@
 		"security:audit": "npm audit",
 		"security:fix": "npm audit fix",
 		"auth:migrate": "better-auth migrate --config ./lib/auth/auth.ts",
-		"auth:generate": "better-auth generate --config ./lib/auth/auth.ts"
+		"auth:generate": "better-auth generate --config ./lib/auth/auth.ts",
+		"lint": "biome check .",
+		"format": "biome format . --write"
 	},
 	"dependencies": {
 		"@google/generative-ai": "^0.24.1",
