@@ -38,17 +38,20 @@ export function UserAvatarDropdown({ user }: UserAvatarDropdownProps) {
 
 	const initials = user.name
 		? user.name
-			.split(" ")
-			.map((n) => n[0])
-			.join("")
-			.toUpperCase()
-			.slice(0, 2)
+				.split(" ")
+				.map((n) => n[0])
+				.join("")
+				.toUpperCase()
+				.slice(0, 2)
 		: user.email?.charAt(0).toUpperCase() || "U";
 
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
-				<button type="button" className="flex items-center gap-3 rounded-full p-1.5 pr-4 hover:bg-white/5 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50">
+				<button
+					type="button"
+					className="flex items-center gap-3 rounded-full p-1.5 pr-4 hover:bg-white/5 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+				>
 					<Avatar className="h-9 w-9 border-2 border-white/10">
 						<AvatarImage
 							src={user.image || undefined}

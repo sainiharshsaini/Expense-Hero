@@ -1,7 +1,4 @@
-import Image from "next/image";
-import Link from "next/link";
 import type { ReactNode } from "react";
-import expenseHeroLogo from "@/public/Expense_Hero.png";
 
 const AuthLayout = ({ children }: { children: ReactNode }) => {
 	return (

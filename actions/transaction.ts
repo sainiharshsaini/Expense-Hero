@@ -102,7 +102,9 @@ export async function getTransaction(
 
 	if (!transaction) throw new Error("Transaction not found");
 
-	return serializeAmount(transaction) as unknown as SerializedTransactionForForm;
+	return serializeAmount(
+		transaction,
+	) as unknown as SerializedTransactionForForm;
 }
 
 export async function updateTransaction(

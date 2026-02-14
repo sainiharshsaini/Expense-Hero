@@ -211,28 +211,36 @@ const AccountChart = ({ transactions }: AccountChartProps) => {
 												<p className="text-xs font-black uppercase text-muted-foreground mb-2">
 													{payload[0].payload.date}
 												</p>
-												{payload.map((p: { dataKey: string; payload?: { date?: string }; fill?: string; name?: string; value?: number }) => (
-													<div
-														key={p.dataKey}
-														className="flex justify-between items-center gap-4 py-1"
-													>
-														<span className="flex items-center gap-2">
-															<div
-																className="w-2 h-2 rounded-full"
-																style={{ background: p.fill }}
-															/>
-															<span className="text-xs font-bold capitalize">
-																{p.name}:
-															</span>
-														</span>
-														<span
-															className="text-sm font-black tabular-nums"
-															style={{ color: p.fill }}
+												{payload.map(
+													(p: {
+														dataKey: string;
+														payload?: { date?: string };
+														fill?: string;
+														name?: string;
+														value?: number;
+													}) => (
+														<div
+															key={p.dataKey}
+															className="flex justify-between items-center gap-4 py-1"
 														>
-															${(p.value ?? 0).toLocaleString()}
-														</span>
-													</div>
-												))}
+															<span className="flex items-center gap-2">
+																<div
+																	className="w-2 h-2 rounded-full"
+																	style={{ background: p.fill }}
+																/>
+																<span className="text-xs font-bold capitalize">
+																	{p.name}:
+																</span>
+															</span>
+															<span
+																className="text-sm font-black tabular-nums"
+																style={{ color: p.fill }}
+															>
+																${(p.value ?? 0).toLocaleString()}
+															</span>
+														</div>
+													),
+												)}
 											</div>
 										);
 									}

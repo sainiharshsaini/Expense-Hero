@@ -53,8 +53,9 @@ export function QuickAddButton() {
 				aria-label={isOpen ? "Close menu" : "Add transaction"}
 			>
 				<div
-					className={`transition-all duration-500 ease-spring ${isOpen ? "rotate-45" : ""
-						}`}
+					className={`transition-all duration-500 ease-spring ${
+						isOpen ? "rotate-45" : ""
+					}`}
 				>
 					{isOpen ? (
 						<X className="h-8 w-8 text-white" />

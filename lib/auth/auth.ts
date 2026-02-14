@@ -7,20 +7,20 @@ const baseURL =
 	process.env.NEXT_PUBLIC_BETTER_AUTH_URL ||
 	(process.env.NODE_ENV === "production"
 		? process.env.NEXT_PUBLIC_APP_URL ||
-		(process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined)
+			(process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined)
 		: "http://localhost:3000");
 
 const trustedOrigins =
 	process.env.NODE_ENV === "production"
 		? ([
-			process.env.BETTER_AUTH_URL,
-			process.env.NEXT_PUBLIC_BETTER_AUTH_URL,
-			process.env.NEXT_PUBLIC_APP_URL,
-			process.env.VERCEL_URL && `https://${process.env.VERCEL_URL}`,
-		].filter(Boolean) as string[])
+				process.env.BETTER_AUTH_URL,
+				process.env.NEXT_PUBLIC_BETTER_AUTH_URL,
+				process.env.NEXT_PUBLIC_APP_URL,
+				process.env.VERCEL_URL && `https://${process.env.VERCEL_URL}`,
+			].filter(Boolean) as string[])
 		: (["http://localhost:3000", "http://127.0.0.1:3000", baseURL].filter(
-			Boolean,
-		) as string[]);
+				Boolean,
+			) as string[]);
 
 export const auth = betterAuth({
 	database: prismaAdapter(prisma, {

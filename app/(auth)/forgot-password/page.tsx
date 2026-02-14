@@ -96,11 +96,11 @@ export default function ForgotPasswordPage() {
 								</div>
 								<p className="text-sm text-muted-foreground">
 									Didn&apos;t receive the email?{" "}
-<button
-                                        type="button"
-                                        onClick={() => setIsSubmitted(false)}
-                                        className="font-bold text-primary hover:underline"
-                                    >
+									<button
+										type="button"
+										onClick={() => setIsSubmitted(false)}
+										className="font-bold text-primary hover:underline"
+									>
 										Click to resend
 									</button>
 								</p>

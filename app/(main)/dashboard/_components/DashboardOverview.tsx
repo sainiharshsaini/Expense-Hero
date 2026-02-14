@@ -1,7 +1,7 @@
 "use client";
 
 import { format } from "date-fns";
-import { ArrowDownRight, ArrowUpRight } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import {
 	Cell,
@@ -139,7 +139,7 @@ export function DashboardOverview({ accounts, transactions }: Props) {
 						</div>
 					) : (
 						<div className="space-y-1">
-							{recentTransactions.map((t, i) => (
+							{recentTransactions.map((t, _i) => (
 								<div
 									key={t.id}
 									className="group flex items-center justify-between p-4 rounded-2xl hover:bg-white/5 transition-all duration-300 border border-transparent hover:border-white/5"

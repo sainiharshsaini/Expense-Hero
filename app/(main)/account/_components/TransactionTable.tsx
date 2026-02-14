@@ -6,7 +6,6 @@ import {
 	ChevronLeft,
 	ChevronRight,
 	ChevronUp,
-	Clock,
 	Download,
 	MoreHorizontal,
 	RefreshCw,
@@ -19,7 +18,6 @@ import { useEffect, useMemo, useState } from "react";
 import { BarLoader } from "react-spinners";
 import { toast } from "sonner";
 import { bulkDeleteTransactions } from "@/actions/account";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -427,8 +425,7 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
 										<span
 											className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider"
 											style={{
-												backgroundColor:
-													(categoryColors as any)[transaction.category] + "15",
+												backgroundColor: `${(categoryColors as any)[transaction.category]}15`,
 												color: (categoryColors as any)[transaction.category],
 											}}
 										>

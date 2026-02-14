@@ -17,7 +17,8 @@ export type SerializedAccount = {
 	};
 };
 
-interface AccountWithDecimalBalance extends Omit<SerializedAccount, "balance" | "_count"> {
+interface AccountWithDecimalBalance
+	extends Omit<SerializedAccount, "balance" | "_count"> {
 	balance: { toNumber: () => number };
 	_count?: { transactions: number };
 }
@@ -147,7 +148,10 @@ interface TransactionWithDecimalAmount
 const serializeTransactionData = (
 	obj: TransactionWithDecimalAmount,
 ): SerializedTransaction => {
-	const serialized = { ...obj, amount: obj.amount.toNumber() } as unknown as SerializedTransaction;
+	const serialized = {
+		...obj,
+		amount: obj.amount.toNumber(),
+	} as unknown as SerializedTransaction;
 	return serialized;
 };
 
