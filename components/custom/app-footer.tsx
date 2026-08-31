@@ -1,5 +1,3 @@
-import Link from "next/link";
-
 const AppFooter = () => {
 	return (
 		<footer className="py-12 relative overflow-hidden">
@@ -18,14 +16,8 @@ const AppFooter = () => {
 
 				<div className="flex flex-col md:flex-row items-center gap-4 md:gap-8 text-sm text-muted-foreground">
 					<div className="text-xs">
-						© {new Date().getFullYear()} ExpenseHero. Built with ❤️ by{" "}
-						<Link
-							href="https://harshsaini.vercel.app/"
-							target="_blank"
-							className="font-medium text-primary hover:underline hover:text-primary/80 transition-colors"
-						>
-							Harsh Saini
-						</Link>
+						© {new Date().getFullYear()} ExpenseHero. Built with ❤️ for smarter
+						spending.
 					</div>
 				</div>
 			</div>

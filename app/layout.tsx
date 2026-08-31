@@ -2,8 +2,6 @@ import type { Metadata } from "next";
 import { Outfit } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
-import AppFooter from "@/components/custom/app-footer";
-import AppHeader from "@/components/custom/app-header";
 
 const outfit = Outfit({
 	subsets: ["latin"],
@@ -12,11 +10,11 @@ const outfit = Outfit({
 
 export const metadata: Metadata = {
 	title: {
-		default: "Expense-Hero - Your Financial Guardian",
-		template: "%s | Expense-Hero",
+		default: "ExpenseHero — Your AI-Powered Financial Guardian",
+		template: "%s | ExpenseHero",
 	},
 	description:
-		"Expense-Hero is a powerful, full-stack web application designed to help you track expenses, manage budgets, and gain insights into your financial health with ease.",
+		"ExpenseHero is a powerful, full-stack web application designed to help you track expenses, manage budgets, and gain insights into your financial health with ease.",
 	keywords: [
 		"expense tracker",
 		"budget manager",
@@ -25,22 +23,22 @@ export const metadata: Metadata = {
 		"dashboard",
 		"analytics",
 	],
-	authors: [{ name: "Harsh" }],
-	creator: "Harsh",
+	authors: [{ name: "ExpenseHero" }],
+	creator: "ExpenseHero",
 	openGraph: {
 		type: "website",
 		locale: "en_US",
-		url: "https://expense-hero-harsh.vercel.app", // Assuming this is the URL from earlier
-		title: "Expense-Hero - Your Financial Guardian",
+		url: "https://expense-hero-harsh.vercel.app",
+		title: "ExpenseHero — Your AI-Powered Financial Guardian",
 		description:
-			"Expense-Hero is a powerful, full-stack web application designed to help you track expenses, manage budgets, and gain insights into your financial health with ease.",
-		siteName: "Expense-Hero",
+			"ExpenseHero is a powerful, full-stack web application designed to help you track expenses, manage budgets, and gain insights into your financial health with ease.",
+		siteName: "ExpenseHero",
 	},
 	twitter: {
 		card: "summary_large_image",
-		title: "Expense-Hero - Your Financial Guardian",
+		title: "ExpenseHero — Your AI-Powered Financial Guardian",
 		description:
-			"Expense-Hero is a powerful, full-stack web application designed to help you track expenses, manage budgets, and gain insights into your financial health with ease.",
+			"ExpenseHero is a powerful, full-stack web application designed to help you track expenses, manage budgets, and gain insights into your financial health with ease.",
 	},
 };
 
@@ -50,10 +48,8 @@ export default function RootLayout({
 	return (
 		<html lang="en">
 			<body className={`${outfit.variable} font-sans antialiased`}>
-				<AppHeader />
 				<Toaster richColors />
 				<main className="min-h-screen">{children}</main>
-				<AppFooter />
 			</body>
 		</html>
 	);

@@ -4,7 +4,7 @@ import { AnalyticsCharts } from "./_components/analytics-charts";
 import { SpendingSummary } from "./_components/spending-summary";
 
 export const metadata = {
-	title: "Analytics | Expense Hero",
+	title: "Analytics",
 	description: "Visualize and analyze your spending patterns",
 };
 
@@ -17,11 +17,9 @@ export default async function AnalyticsPage() {
 	]);
 
 	return (
-		<div className="space-y-8 animate-in fade-in duration-500">
+		<div className="space-y-6 animate-in fade-in duration-500">
 			<div className="space-y-1">
-				<h1 className="text-3xl md:text-4xl font-black tracking-tight">
-					Analytics
-				</h1>
+				<h1 className="text-3xl font-bold tracking-tight">Analytics</h1>
 				<p className="text-muted-foreground font-medium">
 					Visualize and understand your spending patterns.
 				</p>

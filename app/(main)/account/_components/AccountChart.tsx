@@ -105,7 +105,7 @@ const AccountChart = ({ transactions }: AccountChartProps) => {
 						Real-time spending analysis
 					</p>
 				</div>
-				<Select defaultValue={dataRange} onValueChange={(v) => setDataRange(v)}>
+				<Select value={dataRange} onValueChange={(v) => setDataRange(v)}>
 					<SelectTrigger className="w-[160px] h-11 bg-white/5 border-white/10 focus-visible:ring-primary/20 transition-all font-bold">
 						<SelectValue placeholder="Select range" />
 					</SelectTrigger>

@@ -13,7 +13,6 @@ interface SendEmailParams {
 
 export async function sendEmail({ to, subject, react }: SendEmailParams) {
 	if (!apiKey) {
-		console.error("RESEND_API_KEY is missing!");
 		return { success: false, error: "Missing Resend API key" };
 	}
 
@@ -29,7 +28,6 @@ export async function sendEmail({ to, subject, react }: SendEmailParams) {
 
 		return { success: true, data: response };
 	} catch (err) {
-		console.error("Failed to send email:", err);
 		return { success: false, error: err };
 	}
 }

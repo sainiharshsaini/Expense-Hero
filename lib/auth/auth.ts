@@ -22,6 +22,19 @@ const trustedOrigins =
 				Boolean,
 			) as string[]);
 
+const googleClientId = process.env.GOOGLE_CLIENT_ID?.trim();
+const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET?.trim();
+const googleProvider =
+	googleClientId && googleClientSecret
+		? {
+				google: {
+					clientId: googleClientId,
+					clientSecret: googleClientSecret,
+					prompt: "select_account" as const,
+				},
+			}
+		: {};
+
 export const auth = betterAuth({
 	database: prismaAdapter(prisma, {
 		provider: "postgresql",
@@ -33,10 +46,5 @@ export const auth = betterAuth({
 		enabled: true,
 		autoSignIn: true,
 	},
-	socialProviders: {
-		google: {
-			clientId: process.env.GOOGLE_CLIENT_ID!,
-			clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-		},
-	},
+	socialProviders: googleProvider,
 });

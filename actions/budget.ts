@@ -8,54 +8,46 @@ export async function getCurrentBudget(accountId: string): Promise<{
 	budget: { id: string; userId: string; amount: number } | null;
 	currentExpenses: number;
 }> {
-	try {
-		const session = await authRequired();
-		const userId = session.user.id;
+	const session = await authRequired();
+	const userId = session.user.id;
 
-		const budget = await prisma.budget.findFirst({
-			where: {
-				userId,
+	const budget = await prisma.budget.findFirst({
+		where: {
+			userId,
+		},
+	});
+
+	const currentDate = new Date();
+	const startOfMonth = new Date(
+		currentDate.getFullYear(),
+		currentDate.getMonth(),
+		1,
+	);
+	const startOfNextMonth = new Date(
+		currentDate.getFullYear(),
+		currentDate.getMonth() + 1,
+		1,
+	);
+
+	const expenses = await prisma.transaction.aggregate({
+		where: {
+			userId,
+			type: "EXPENSE",
+			date: {
+				gte: startOfMonth,
+				lt: startOfNextMonth,
 			},
-		});
+			accountId,
+		},
+		_sum: {
+			amount: true,
+		},
+	});
 
-		// Get current month's expenses
-		const currentDate = new Date();
-		const startOfMonth = new Date(
-			currentDate.getFullYear(),
-			currentDate.getMonth(),
-			1,
-		);
-		const endOfMonth = new Date(
-			currentDate.getFullYear(),
-			currentDate.getMonth() + 1,
-			0,
-		);
-
-		const expenses = await prisma.transaction.aggregate({
-			where: {
-				userId,
-				type: "EXPENSE",
-				date: {
-					gte: startOfMonth,
-					lte: endOfMonth,
-				},
-				accountId,
-			},
-			_sum: {
-				amount: true,
-			},
-		});
-
-		return {
-			budget: budget ? { ...budget, amount: budget.amount.toNumber() } : null,
-			currentExpenses: expenses._sum.amount
-				? expenses._sum.amount.toNumber()
-				: 0,
-		};
-	} catch (error) {
-		console.error("Error fetching budget:", error);
-		throw error;
-	}
+	return {
+		budget: budget ? { ...budget, amount: budget.amount.toNumber() } : null,
+		currentExpenses: expenses._sum.amount ? expenses._sum.amount.toNumber() : 0,
+	};
 }
 
 export async function updateBudget(
@@ -68,7 +60,6 @@ export async function updateBudget(
 		const session = await authRequired();
 		const userId = session.user.id;
 
-		// Update or create budget
 		const budget = await prisma.budget.upsert({
 			where: {
 				userId,
@@ -88,7 +79,6 @@ export async function updateBudget(
 			data: { ...budget, amount: budget.amount.toNumber() },
 		};
 	} catch (error) {
-		console.error("Error updating budget:", error);
 		return { success: false, error: (error as Error).message };
 	}
 }

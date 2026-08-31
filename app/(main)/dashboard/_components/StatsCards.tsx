@@ -140,10 +140,10 @@ export function StatsCards({ accounts, transactions }: StatsCardsProps) {
 	const animatedExpenses = useAnimatedCounter(Math.floor(currentMonthExpenses));
 
 	return (
-		<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 slide-up-stagger">
-			<div className="stat-card group">
+		<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+			<div className="stat-card">
 				<div className="flex items-center justify-between mb-4">
-					<div className="h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+					<div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
 						<Wallet className="h-6 w-6 text-primary" />
 					</div>
 					<span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
@@ -159,9 +159,9 @@ export function StatsCards({ accounts, transactions }: StatsCardsProps) {
 				</p>
 			</div>
 
-			<div className="stat-card group">
+			<div className="stat-card">
 				<div className="flex items-center justify-between mb-4">
-					<div className="h-12 w-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+					<div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-500/10">
 						<TrendingUp className="h-6 w-6 text-emerald-500" />
 					</div>
 					{incomeTrend !== 0 && (
@@ -183,9 +183,9 @@ export function StatsCards({ accounts, transactions }: StatsCardsProps) {
 				</p>
 			</div>
 
-			<div className="stat-card group">
+			<div className="stat-card">
 				<div className="flex items-center justify-between mb-4">
-					<div className="h-12 w-12 rounded-2xl bg-red-500/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+					<div className="flex h-10 w-10 items-center justify-center rounded-lg bg-red-500/10">
 						<TrendingDown className="h-6 w-6 text-red-500" />
 					</div>
 					{expenseTrend !== 0 && (
@@ -207,9 +207,9 @@ export function StatsCards({ accounts, transactions }: StatsCardsProps) {
 				</p>
 			</div>
 
-			<div className="stat-card group">
+			<div className="stat-card">
 				<div className="flex items-center justify-between mb-4">
-					<div className="h-12 w-12 rounded-2xl bg-indigo-500/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+					<div className="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-500/10">
 						<PiggyBank className="h-6 w-6 text-indigo-500" />
 					</div>
 					{savingsRate !== 0 && (

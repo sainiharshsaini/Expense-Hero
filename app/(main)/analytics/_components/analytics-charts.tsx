@@ -161,7 +161,7 @@ export function AnalyticsCharts({
 	}) => {
 		if (active && payload && payload.length) {
 			return (
-				<div className="glass-panel p-3 rounded-xl border-white/10 shadow-xl">
+				<div className="rounded-lg border border-border bg-popover p-3 shadow-md">
 					<p className="text-xs font-bold text-muted-foreground mb-2">
 						{payload[0]?.payload?.fullName ?? label}
 					</p>
@@ -183,7 +183,7 @@ export function AnalyticsCharts({
 	return (
 		<div className="grid gap-6 lg:grid-cols-2">
 			{/* Income vs Expenses Trend */}
-			<Card className="glass-panel border-white/10 shadow-xl lg:col-span-2">
+			<Card className="lg:col-span-2">
 				<CardHeader className="flex flex-row items-center justify-between pb-2">
 					<CardTitle className="text-xl font-bold tracking-tight">
 						Income vs Expenses Trend
@@ -192,10 +192,10 @@ export function AnalyticsCharts({
 						value={timeRange}
 						onValueChange={(v) => setTimeRange(v as "3" | "6" | "12")}
 					>
-						<SelectTrigger className="w-[140px] h-9 bg-background/50 border-white/10">
+						<SelectTrigger className="h-9 w-[140px] border-border bg-background">
 							<SelectValue />
 						</SelectTrigger>
-						<SelectContent className="glass-panel border-white/10">
+						<SelectContent className="border-border bg-popover">
 							<SelectItem value="3">Last 3 months</SelectItem>
 							<SelectItem value="6">Last 6 months</SelectItem>
 							<SelectItem value="12">Last 12 months</SelectItem>

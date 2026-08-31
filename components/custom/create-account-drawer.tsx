@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Wallet } from "lucide-react";
 import { type ReactNode, useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
 import { createAccount } from "@/actions/dashboard";
@@ -40,6 +40,7 @@ const CreateAccountDrawer: React.FC<CreateAccountDrawerProps> = ({
 
 	const {
 		register,
+		control,
 		handleSubmit,
 		formState: { errors },
 		setValue,
@@ -77,16 +78,19 @@ const CreateAccountDrawer: React.FC<CreateAccountDrawerProps> = ({
 	}, [error]);
 
 	const onSubmit = async (data: z.input<typeof accountSchema>) => {
-		await createAccountFn(data);
+		await createAccountFn({
+			...data,
+			isDefault: Boolean(data.isDefault),
+		});
 	};
 
 	return (
 		<Drawer open={open} onOpenChange={setOpen}>
 			<DrawerTrigger asChild>{children}</DrawerTrigger>
-			<DrawerContent className="glass-panel border-t-white/10 max-h-[90vh]">
+			<DrawerContent className="max-h-[90vh] border-border bg-background">
 				<div className="mx-auto w-full max-w-lg">
 					<DrawerHeader className="text-center pt-8 pb-6">
-						<div className="mx-auto mb-4 h-14 w-14 rounded-2xl bg-primary/10 flex items-center justify-center">
+						<div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
 							<Wallet className="h-7 w-7 text-primary" />
 						</div>
 						<DrawerTitle className="text-2xl font-bold tracking-tight">
@@ -109,7 +113,7 @@ const CreateAccountDrawer: React.FC<CreateAccountDrawerProps> = ({
 									{...register("name")}
 									id="name"
 									placeholder="e.g., Main Checking"
-									className="h-12 rounded-xl bg-white/[0.03] border-white/10 px-4 font-medium focus-visible:ring-primary/20"
+									className="h-11 rounded-lg border-border bg-background px-4 font-medium focus-visible:ring-primary/20"
 								/>
 								{errors.name && (
 									<p className="text-xs font-semibold text-red-500">
@@ -126,27 +130,31 @@ const CreateAccountDrawer: React.FC<CreateAccountDrawerProps> = ({
 									>
 										Account Type
 									</label>
-									<Select
-										onValueChange={(value) =>
-											setValue("type", value as "CURRENT" | "SAVINGS")
-										}
-										defaultValue={watch("type")}
-									>
-										<SelectTrigger
-											id="type"
-											className="h-12 rounded-xl bg-white/[0.03] border-white/10 font-medium focus:ring-primary/20"
-										>
-											<SelectValue placeholder="Select Type" />
-										</SelectTrigger>
-										<SelectContent className="glass-panel border-white/10">
-											<SelectItem value="CURRENT" className="font-medium">
-												Current
-											</SelectItem>
-											<SelectItem value="SAVINGS" className="font-medium">
-												Savings
-											</SelectItem>
-										</SelectContent>
-									</Select>
+									<Controller
+										name="type"
+										control={control}
+										render={({ field }) => (
+											<Select
+												onValueChange={field.onChange}
+												value={field.value}
+											>
+												<SelectTrigger
+													id="type"
+													className="h-11 rounded-lg border-border bg-background font-medium focus:ring-primary/20"
+												>
+													<SelectValue placeholder="Select Type" />
+												</SelectTrigger>
+												<SelectContent className="border-border bg-popover">
+													<SelectItem value="CURRENT" className="font-medium">
+														Current
+													</SelectItem>
+													<SelectItem value="SAVINGS" className="font-medium">
+														Savings
+													</SelectItem>
+												</SelectContent>
+											</Select>
+										)}
+									/>
 									{errors.type && (
 										<p className="text-xs font-semibold text-red-500">
 											{errors.type.message}
@@ -171,7 +179,7 @@ const CreateAccountDrawer: React.FC<CreateAccountDrawerProps> = ({
 											type="number"
 											step="0.01"
 											placeholder="0.00"
-											className="h-12 rounded-xl bg-white/[0.03] border-white/10 pl-8 font-medium focus-visible:ring-primary/20"
+											className="h-11 rounded-lg border-border bg-background pl-8 font-medium focus-visible:ring-primary/20"
 										/>
 									</div>
 									{errors.balance && (
@@ -182,7 +190,7 @@ const CreateAccountDrawer: React.FC<CreateAccountDrawerProps> = ({
 								</div>
 							</div>
 
-							<div className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.02] p-4">
+							<div className="flex items-center justify-between rounded-lg border border-border bg-muted/30 p-4">
 								<div className="space-y-0.5">
 									<label
 										htmlFor="isDefault"
@@ -207,14 +215,14 @@ const CreateAccountDrawer: React.FC<CreateAccountDrawerProps> = ({
 									<Button
 										type="button"
 										variant="ghost"
-										className="h-12 rounded-xl font-bold hover:bg-white/5"
+										className="h-11 rounded-lg font-bold"
 									>
 										Cancel
 									</Button>
 								</DrawerClose>
 								<Button
 									type="submit"
-									className="h-12 rounded-xl font-bold shadow-lg shadow-primary/20"
+									className="h-11 rounded-lg font-bold"
 									disabled={createAccountLoading}
 								>
 									{createAccountLoading ? (

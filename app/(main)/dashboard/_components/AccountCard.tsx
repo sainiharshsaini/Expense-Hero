@@ -69,11 +69,7 @@ const AccountCard: React.FC<AccountCardProps> = ({ account }) => {
 					<CardTitle className="text-sm font-medium capitalize">
 						{name}
 					</CardTitle>
-					<Switch
-						checked={isDefault}
-						onClick={handleDefaultChange}
-						disabled={loading}
-					/>
+					<div className="h-6 w-8" /> {/* Spacer for Switch */}
 				</CardHeader>
 
 				<CardContent>
@@ -94,6 +90,16 @@ const AccountCard: React.FC<AccountCardProps> = ({ account }) => {
 					</div>
 				</CardFooter>
 			</Link>
+			<div
+				className="absolute top-6 right-6 z-10 flex items-center"
+				onClick={(e) => e.stopPropagation()}
+			>
+				<Switch
+					checked={isDefault}
+					onCheckedChange={handleDefaultChange}
+					disabled={loading}
+				/>
+			</div>
 		</Card>
 	);
 };

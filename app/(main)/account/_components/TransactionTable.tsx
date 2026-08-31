@@ -425,8 +425,9 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
 										<span
 											className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider"
 											style={{
-												backgroundColor: `${(categoryColors as any)[transaction.category]}15`,
-												color: (categoryColors as any)[transaction.category],
+												backgroundColor: `${categoryColors[transaction.category] ?? "#8b5cf6"}15`,
+												color:
+													categoryColors[transaction.category] ?? "#8b5cf6",
 											}}
 										>
 											{transaction.category}
@@ -452,7 +453,7 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
 															<RefreshCw className="h-4 w-4" />
 															<span className="text-[10px] font-black uppercase tracking-tight">
 																{RECURRING_INTERVALS[
-																	transaction.recurringInterval!
+																	transaction.recurringInterval ?? "MONTHLY"
 																] || "Recurring"}
 															</span>
 														</div>
@@ -460,7 +461,12 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
 													<TooltipContent className="glass-panel border-white/10 font-bold">
 														Next:{" "}
 														{format(
-															new Date(transaction.nextRecurringDate!),
+															transaction.nextRecurringDate
+																? format(
+																		new Date(transaction.nextRecurringDate),
+																		"MMM d",
+																	)
+																: "Soon",
 															"MMM d",
 														)}
 													</TooltipContent>
