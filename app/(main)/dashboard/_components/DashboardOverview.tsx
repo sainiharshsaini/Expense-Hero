@@ -96,9 +96,9 @@ export function DashboardOverview({ accounts, transactions }: Props) {
 	);
 
 	return (
-		<div className="grid gap-8 md:grid-cols-2 animate-in fade-in slide-in-from-bottom-5 duration-700">
-			<Card className="glass-panel border-white/10 shadow-2xl overflow-hidden hover:shadow-primary/5 transition-all duration-500">
-				<CardHeader className="flex flex-row items-center justify-between pb-6 bg-white/5 border-b border-white/10">
+		<div className="grid gap-6 md:grid-cols-2">
+			<Card className="overflow-hidden">
+				<CardHeader className="flex flex-row items-center justify-between border-b pb-4">
 					<div>
 						<CardTitle className="text-xl font-black tracking-tight">
 							Recent Activity
@@ -111,10 +111,10 @@ export function DashboardOverview({ accounts, transactions }: Props) {
 						value={selectedAccountId}
 						onValueChange={setSelectedAccountId}
 					>
-						<SelectTrigger className="w-[160px] h-10 bg-white/5 border-white/10 font-bold focus:ring-primary/20">
+						<SelectTrigger className="h-9 w-[160px] border-border bg-background font-medium focus:ring-primary/20">
 							<SelectValue placeholder="Select account" />
 						</SelectTrigger>
-						<SelectContent className="glass-panel border-white/10">
+						<SelectContent className="border-border bg-popover">
 							{accounts.map((account) => (
 								<SelectItem
 									key={account.id}
@@ -142,15 +142,15 @@ export function DashboardOverview({ accounts, transactions }: Props) {
 							{recentTransactions.map((t, _i) => (
 								<div
 									key={t.id}
-									className="group flex items-center justify-between p-4 rounded-2xl hover:bg-white/5 transition-all duration-300 border border-transparent hover:border-white/5"
+									className="group flex items-center justify-between rounded-lg border border-transparent p-3 transition-colors hover:border-border hover:bg-muted/40"
 								>
 									<div className="flex items-center gap-4">
 										<div
 											className={cn(
-												"w-12 h-12 rounded-2xl flex items-center justify-center font-semibold text-xl shadow-lg transition-transform group-hover:scale-110 duration-300",
+												"flex h-10 w-10 items-center justify-center rounded-lg text-xl font-semibold",
 												t.type === "EXPENSE"
-													? "bg-red-500/10 text-red-500 shadow-red-500/10"
-													: "bg-emerald-500/10 text-emerald-500 shadow-emerald-500/10",
+													? "bg-red-500/10 text-red-500"
+													: "bg-emerald-500/10 text-emerald-500",
 											)}
 										>
 											{t.type === "EXPENSE" ? "-" : "+"}
@@ -199,8 +199,8 @@ export function DashboardOverview({ accounts, transactions }: Props) {
 				</CardContent>
 			</Card>
 
-			<Card className="glass-panel border-white/10 shadow-2xl overflow-hidden hover:shadow-primary/5 transition-all duration-500">
-				<CardHeader className="bg-white/5 border-b border-white/10">
+			<Card className="overflow-hidden">
+				<CardHeader className="border-b pb-4">
 					<CardTitle className="text-xl font-black tracking-tight">
 						Expense Distribution
 					</CardTitle>
@@ -268,7 +268,12 @@ export function DashboardOverview({ accounts, transactions }: Props) {
 																	className="w-3 h-3 rounded-full"
 																	style={{
 																		background:
-																			(payload[0].payload as any).fill ||
+																			((
+																				payload[0]?.payload as
+																					| { fill?: string }
+																					| undefined
+																			)?.fill ??
+																				COLORS[0]) ||
 																			COLORS[0],
 																	}}
 																/>

@@ -60,15 +60,17 @@ function ResetPasswordForm() {
 		}
 
 		try {
-			await (authClient as any).resetPassword({
+			await authClient.resetPassword({
 				newPassword: values.password,
-				token: token,
+				token,
 			});
 			setIsSuccess(true);
 			toast.success("Password reset successfully!");
 			setTimeout(() => router.push("/sign-in"), 2000);
-		} catch (error: any) {
-			toast.error(error.message || "Failed to reset password");
+		} catch (error: unknown) {
+			const message =
+				error instanceof Error ? error.message : "Failed to reset password";
+			toast.error(message);
 		}
 	};
 

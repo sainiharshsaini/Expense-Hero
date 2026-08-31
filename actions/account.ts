@@ -106,7 +106,6 @@ export async function bulkDeleteTransactions(
 			},
 		});
 
-		// Calculate balance changes per account
 		const accountBalanceChanges: Record<string, number> = transactions.reduce(
 			(acc, transaction) => {
 				const amount = transaction.amount as unknown as
@@ -134,7 +133,6 @@ export async function bulkDeleteTransactions(
 				},
 			});
 
-			// Update account balances
 			for (const [accountId, balanceChange] of Object.entries(
 				accountBalanceChanges,
 			)) {

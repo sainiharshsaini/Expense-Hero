@@ -47,11 +47,11 @@ export default async function DashboardPage() {
 	const userName = session?.user?.name?.split(" ")[0] || "there";
 
 	return (
-		<div className="space-y-8 animate-in fade-in duration-500">
+		<div className="space-y-6 animate-in fade-in duration-500">
 			<div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
 				<div className="space-y-1">
-					<h1 className="text-3xl md:text-4xl font-black tracking-tight">
-						{greeting}, {userName}! 👋
+					<h1 className="text-3xl font-bold tracking-tight">
+						{greeting}, {userName}
 					</h1>
 					<p className="text-muted-foreground font-medium">
 						Here's an overview of your financial health.
@@ -61,8 +61,8 @@ export default async function DashboardPage() {
 
 			<StatsCards accounts={accounts} transactions={transactions} />
 
-			<div className="grid gap-8 lg:grid-cols-3">
-				<div className="lg:col-span-2 space-y-8">
+			<div className="grid gap-6 lg:grid-cols-3">
+				<div className="space-y-6 lg:col-span-2">
 					{defaultAccount && (
 						<BudgetProgress
 							initialBudget={budgetData?.budget ?? null}
@@ -72,7 +72,7 @@ export default async function DashboardPage() {
 					<DashboardOverview accounts={accounts} transactions={transactions} />
 				</div>
 
-				<div className="space-y-6">
+				<div className="space-y-4">
 					<div className="flex items-center justify-between">
 						<h2 className="text-xl font-bold tracking-tight">Your Accounts</h2>
 						<span className="text-sm font-medium text-muted-foreground">
@@ -82,7 +82,7 @@ export default async function DashboardPage() {
 
 					<div className="grid gap-4">
 						<CreateAccountDrawer>
-							<Card className="hover:shadow-md transition-all cursor-pointer border-dashed border-2 hover:border-primary/50 hover:bg-muted/50 group">
+							<Card className="cursor-pointer border-dashed border-2 border-border transition-colors hover:border-primary/50 hover:bg-muted/50 group">
 								<CardContent className="flex flex-col items-center justify-center p-6 text-muted-foreground group-hover:text-primary transition-colors">
 									<div className="h-10 w-10 rounded-full bg-muted group-hover:bg-primary/10 flex items-center justify-center mb-2 transition-colors">
 										<Plus className="h-5 w-5" />

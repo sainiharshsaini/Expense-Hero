@@ -7,8 +7,16 @@ import { scanReceipt } from "@/actions/transaction";
 import { Button } from "@/components/ui/button";
 import useFetch from "@/hooks/useFetch";
 
+export interface ReceiptScanData {
+	amount: number;
+	date: Date;
+	description: string;
+	category: string;
+	merchantName: string;
+}
+
 interface ReceiptScannerProps {
-	onScanComplete: (data: any) => void;
+	onScanComplete: (data: ReceiptScanData) => void;
 }
 
 export function ReceiptScanner({ onScanComplete }: ReceiptScannerProps) {
@@ -18,9 +26,9 @@ export function ReceiptScanner({ onScanComplete }: ReceiptScannerProps) {
 		loading: scanReceiptLoading,
 		fn: scanReceiptFn,
 		data: scannedData,
-	} = useFetch(scanReceipt);
+	} = useFetch<ReceiptScanData, [File]>(scanReceipt);
 
-	const handleReceiptScan = async (file: any) => {
+	const handleReceiptScan = async (file: File) => {
 		if (file.size > 5 * 1024 * 1024) {
 			toast.error("File size should be less than 5MB");
 			return;

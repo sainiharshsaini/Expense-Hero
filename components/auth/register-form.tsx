@@ -62,6 +62,24 @@ const RegisterForm = () => {
 
 	const isPending = form.formState.isSubmitting;
 
+	const handleGoogleSignIn = async () => {
+		await authClient.signIn.social(
+			{
+				provider: "google",
+				callbackURL: "/dashboard",
+			},
+			{
+				onSuccess: () => {
+					toast.success("Signed up with Google");
+					router.push("/dashboard");
+				},
+				onError: (ctx) => {
+					toast.error(ctx.error.message || "Google sign-up failed");
+				},
+			},
+		);
+	};
+
 	return (
 		<div className="flex flex-col gap-6 text-center animate-in fade-in zoom-in duration-500 delay-100">
 			<Card className="glass-panel border-white/10 shadow-2xl overflow-hidden relative">
@@ -175,6 +193,7 @@ const RegisterForm = () => {
 								className="w-full h-11 bg-white/5 border-white/10 hover:bg-white/10 transition-all relative overflow-hidden group"
 								type="button"
 								disabled={isPending}
+								onClick={handleGoogleSignIn}
 							>
 								<svg
 									xmlns="http://www.w3.org/2000/svg"

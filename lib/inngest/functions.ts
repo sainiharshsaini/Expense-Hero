@@ -1,5 +1,3 @@
-// lib/inngest/functions.ts
-
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { sendEmail } from "@/actions/send-email";
 import EmailTemplate from "@/emails/template";
@@ -66,7 +64,7 @@ export const triggerRecurringTransactions = inngest.createFunction(
 		id: "trigger-recurring-transactions",
 		name: "Trigger Recurring Transactions",
 	},
-	{ cron: "0 0 * * *" }, // Daily
+	{ cron: "0 0 * * *" },
 	async () => {
 		const transactions = await prisma.transaction.findMany({
 			where: {
@@ -92,7 +90,6 @@ export const triggerRecurringTransactions = inngest.createFunction(
 	},
 );
 
-// Simple interface for financial stats
 interface FinancialStats {
 	totalIncome: number;
 	totalExpenses: number;
@@ -100,21 +97,18 @@ interface FinancialStats {
 	transactionCount: number;
 }
 
-// Generate AI-powered financial insights with fallback
 async function generateFinancialInsights(
 	stats: FinancialStats,
 	month: string,
 ): Promise<string[]> {
 	try {
-		// Check if API key is available
 		if (!process.env.GEMINI_API_KEY) {
 			throw new Error("API key not configured");
 		}
 
 		const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-		const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+		const model = genAI.getGenerativeModel({ model: "gemini-3.6-flash" });
 
-		// Simple, clear prompt for AI
 		const prompt = `
       Analyze this financial data and provide 3 concise, actionable insights.
       Format as a JSON array of strings.
@@ -129,12 +123,8 @@ async function generateFinancialInsights(
 			.replace(/```json|```/g, "")
 			.trim();
 
-		// Parse JSON response safely
 		return JSON.parse(responseText);
-	} catch (error) {
-		console.error("Failed to generate AI insights:", error);
-
-		// Return simple, helpful fallback insights
+	} catch (_error) {
 		return [
 			"Your expenses are high in one category – review and cut back.",
 			"Set a budget to improve savings.",
@@ -145,7 +135,7 @@ async function generateFinancialInsights(
 
 export const generateMonthlyReports = inngest.createFunction(
 	{ id: "generate-monthly-reports", name: "Generate Monthly Reports" },
-	{ cron: "0 0 1 * *" }, // First day of each month
+	{ cron: "0 0 1 * *" },
 	async () => {
 		const users = await prisma.user.findMany({ include: { accounts: true } });
 
@@ -174,7 +164,7 @@ export const generateMonthlyReports = inngest.createFunction(
 
 export const checkBudgetAlerts = inngest.createFunction(
 	{ id: "check-budget-alerts", name: "Check Budget Alerts" },
-	{ cron: "0 */6 * * *" }, // Every 6 hours
+	{ cron: "0 */6 * * *" },
 	async () => {
 		const budgets = await prisma.budget.findMany({
 			include: {
@@ -239,9 +229,12 @@ export const checkBudgetAlerts = inngest.createFunction(
 	},
 );
 
-function isTransactionDue(t: any) {
+function isTransactionDue(t: {
+	lastProcessed?: Date | string | null;
+	nextRecurringDate?: Date | string | null;
+}) {
 	if (!t.lastProcessed) return true;
-	return new Date(t.nextRecurringDate) <= new Date();
+	return new Date(t.nextRecurringDate ?? new Date()) <= new Date();
 }
 
 function calculateNextRecurringDate(date: Date, interval: string) {
@@ -253,24 +246,20 @@ function calculateNextRecurringDate(date: Date, interval: string) {
 	return next;
 }
 
-// Get monthly financial statistics for a user
 async function getMonthlyStats(
 	userId: string,
 	month: Date,
 ): Promise<FinancialStats> {
-	// Calculate start and end of the month
 	const start = new Date(month.getFullYear(), month.getMonth(), 1);
-	const end = new Date(month.getFullYear(), month.getMonth() + 1, 0);
+	const end = new Date(month.getFullYear(), month.getMonth() + 1, 1);
 
-	// Get all transactions for the month
 	const transactions = await prisma.transaction.findMany({
 		where: {
 			userId,
-			date: { gte: start, lte: end },
+			date: { gte: start, lt: end },
 		},
 	});
 
-	// Initialize stats object
 	const stats: FinancialStats = {
 		totalExpenses: 0,
 		totalIncome: 0,
@@ -278,13 +267,11 @@ async function getMonthlyStats(
 		transactionCount: transactions.length,
 	};
 
-	// Process each transaction
 	for (const transaction of transactions) {
 		const amount = transaction.amount.toNumber();
 
 		if (transaction.type === "EXPENSE") {
 			stats.totalExpenses += amount;
-			// Add to category total
 			stats.byCategory[transaction.category] =
 				(stats.byCategory[transaction.category] || 0) + amount;
 		} else {

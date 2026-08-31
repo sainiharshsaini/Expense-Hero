@@ -205,26 +205,30 @@ interface ScannedReceiptData {
 	merchantName: string;
 }
 
-export async function scanReceipt(file: File): Promise<ScannedReceiptData> {
-	try {
-		const apiKey = process.env.GEMINI_API_KEY;
-		if (!apiKey) {
-			throw new Error("AI service not configured. Please contact support.");
-		}
-		const genAI = new GoogleGenerativeAI(apiKey);
-		const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+async function scanReceiptWithRetry(
+	file: File,
+	maxRetries = 3,
+): Promise<ScannedReceiptData> {
+	for (let attempt = 1; attempt <= maxRetries; attempt++) {
+		try {
+			const apiKey = process.env.GEMINI_API_KEY;
+			if (!apiKey) {
+				throw new Error("AI service not configured. Please contact support.");
+			}
+			const genAI = new GoogleGenerativeAI(apiKey);
+			const model = genAI.getGenerativeModel({ model: "gemini-3.6-flash" });
 
-		const arrayBuffer = await file.arrayBuffer();
-		const base64String = Buffer.from(arrayBuffer).toString("base64");
+			const arrayBuffer = await file.arrayBuffer();
+			const base64String = Buffer.from(arrayBuffer).toString("base64");
 
-		const prompt = `
+			const prompt = `
             Analyze this receipt image and extract the following information in JSON format:
             - Total amount (just the number)
             - Date (in ISO format)
             - Description or items purchased (brief summary)
             - Merchant/store name
             - Suggested category (one of: housing,transportation,groceries,utilities,entertainment,food,shopping,healthcare,education,personal,travel,insurance,gifts,bills,other-expense)
-            
+
             Only respond with valid JSON in this exact format:
             {
               "amount": number,
@@ -237,45 +241,69 @@ export async function scanReceipt(file: File): Promise<ScannedReceiptData> {
             If it's not a receipt, return an empty object.
         `;
 
-		const result = await model.generateContent([
-			{
-				inlineData: {
-					data: base64String,
-					mimeType: file.type,
+			const result = await model.generateContent([
+				{
+					inlineData: {
+						data: base64String,
+						mimeType: file.type,
+					},
 				},
-			},
-			prompt,
-		]);
+				prompt,
+			]);
 
-		const response = await result.response;
-		const text = response.text();
-		const cleanedText = text.replace(/```(?:json)?\n?/g, "").trim();
+			const response = await result.response;
+			const text = response.text();
+			const cleanedText = text.replace(/```(?:json)?\n?/g, "").trim();
 
-		const data = JSON.parse(cleanedText);
+			const data = JSON.parse(cleanedText);
 
-		if (!data.amount || !data.date || !data.category) {
+			if (!data.amount || !data.date || !data.category) {
+				throw new Error(
+					"Could not extract all required information from the receipt",
+				);
+			}
+
+			return {
+				amount: parseFloat(data.amount),
+				date: new Date(data.date),
+				description: data.description || "Receipt scan",
+				category: data.category,
+				merchantName: data.merchantName || "Unknown merchant",
+			};
+		} catch (error) {
+			const isLastAttempt = attempt === maxRetries;
+			const is503Error =
+				error instanceof Error &&
+				(error.message.includes("503") ||
+					error.message.includes("Service Unavailable"));
+
+			// If it's a 503 error and not the last attempt, retry with a delay
+			if (is503Error && !isLastAttempt) {
+				const delay = attempt * 1000; // Exponential backoff: 1s, 2s, 3s
+				await new Promise((resolve) => setTimeout(resolve, delay));
+				continue;
+			}
+
+			// If it's the last attempt or not a 503 error, throw the error
+			if (error instanceof Error) {
+				if (is503Error) {
+					throw new Error(
+						"AI service is currently experiencing high demand. Please try again in a few moments or enter the information manually.",
+					);
+				}
+				throw new Error(`Failed to scan receipt: ${error.message}`);
+			}
 			throw new Error(
-				"Could not extract all required information from the receipt",
+				"Failed to scan receipt. Please try again or enter the information manually.",
 			);
 		}
-
-		return {
-			amount: parseFloat(data.amount),
-			date: new Date(data.date),
-			description: data.description || "Receipt scan",
-			category: data.category,
-			merchantName: data.merchantName || "Unknown merchant",
-		};
-	} catch (error) {
-		console.error("Error scanning receipt:", error);
-
-		if (error instanceof Error) {
-			throw new Error(`Failed to scan receipt: ${error.message}`);
-		}
-		throw new Error(
-			"Failed to scan receipt. Please try again or enter the information manually.",
-		);
 	}
+
+	throw new Error("Failed to scan receipt after multiple attempts.");
+}
+
+export async function scanReceipt(file: File): Promise<ScannedReceiptData> {
+	return scanReceiptWithRetry(file, 3);
 }
 
 function calculateNextRecurringDate(

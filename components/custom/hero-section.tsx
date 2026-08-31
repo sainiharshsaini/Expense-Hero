@@ -1,117 +1,123 @@
 "use client";
 
-import { ChevronRight, Play } from "lucide-react";
-import Image from "next/image";
+import {
+	ArrowUpRight,
+	CheckCircle2,
+	ChevronRight,
+	PiggyBank,
+	ShieldCheck,
+	Sparkles,
+	TrendingUp,
+} from "lucide-react";
 import Link from "next/link";
-import { useEffect, useRef } from "react";
 import { Button } from "../ui/button";
 
 const HeroSection = () => {
-	const imageRef = useRef<HTMLDivElement>(null);
-
-	useEffect(() => {
-		const handleScroll = () => {
-			const scrollPosition = window.scrollY;
-			if (scrollPosition > 50) {
-				imageRef.current?.classList.add("scrolled");
-			} else {
-				imageRef.current?.classList.remove("scrolled");
-			}
-		};
-
-		window.addEventListener("scroll", handleScroll);
-		return () => window.removeEventListener("scroll", handleScroll);
-	}, []);
-
 	return (
 		<section className="relative min-h-[calc(100vh-4rem)] flex items-center justify-center overflow-hidden pt-36 md:pt-32 pb-20">
 			<div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-indigo-500/20 via-background to-background" />
 			<div className="absolute top-1/4 -left-20 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl animate-pulse" />
 			<div className="absolute bottom-1/4 -right-20 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl animate-pulse delay-1000" />
 
-			<div className="container mx-auto px-6 md:px-12 flex flex-col md:flex-row items-center justify-between gap-12 md:gap-8">
-				<div className="flex-1 flex flex-col items-center md:items-start text-center md:text-left space-y-8 z-10">
-					<h1 className="text-4xl sm:text-5xl md:text-7xl font-bold tracking-tight leading-tight animate-in fade-in slide-in-from-bottom-6 duration-700 delay-100">
-						Manage Your <br className="hidden md:block" /> Expenses with{" "}
-						<span className="gradient-title">Intelligence.</span>
+			<div className="container mx-auto px-6 md:px-12 flex flex-col items-center justify-center gap-10">
+				<div className="max-w-4xl text-center z-10 space-y-8">
+					<div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-[10px] font-black uppercase tracking-[0.28em] text-muted-foreground backdrop-blur-xl">
+						Smart money control
+					</div>
+					<h1 className="text-4xl sm:text-5xl md:text-7xl font-black tracking-[-0.06em] leading-[0.94] text-balance">
+						Spend smarter.
+						<span className="gradient-title">Grow faster.</span>
 					</h1>
 
-					<p className="text-muted-foreground text-lg md:text-xl max-w-xl animate-in fade-in slide-in-from-bottom-6 duration-700 delay-200">
-						AI-driven personal finance platform. Track spending, unlock
-						insights, and optimize your wealth in real-time.
+					<p className="mx-auto max-w-2xl text-base md:text-xl text-muted-foreground">
+						AI-powered budgeting, expense tracking, and financial clarity for
+						people who want more control over every dollar.
 					</p>
 
-					<div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto animate-in fade-in slide-in-from-bottom-8 duration-700 delay-300">
-						<Link href={"/dashboard"} className="w-full sm:w-auto">
+					<div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+						<Link href="/dashboard" className="w-full sm:w-auto">
 							<Button
-								size={"lg"}
-								className="w-full sm:w-auto h-12 px-8 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 hover:scale-105 transition-all duration-300 shadow-lg shadow-primary/25"
+								size="lg"
+								className="w-full sm:w-auto h-12 px-8 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 hover:scale-[1.02] transition-all duration-300 shadow-lg shadow-primary/25"
 							>
 								Get Started
 								<ChevronRight className="ml-2 h-4 w-4" />
 							</Button>
 						</Link>
-						<Link
-							target="_blank"
-							href={"https://youtu.be/rOLyWlDpb8Q?si=dt7pnRfNulim2cCG"}
-							className="w-full sm:w-auto"
-						>
-							<Button
-								size="lg"
-								variant={"outline"}
-								className="w-full sm:w-auto h-12 px-8 rounded-full border-2 hover:bg-secondary/50 transition-all duration-300"
-							>
-								<Play className="mr-2 h-4 w-4 fill-current" />
-								View Demo
-							</Button>
-						</Link>
 					</div>
 				</div>
 
-				<div className="flex-1 w-full max-w-[600px] perspective-1000 z-10 animate-in fade-in zoom-in duration-1000 delay-300">
-					<div ref={imageRef} className="hero-image-wrapper relative group">
-						<div className="absolute -inset-1 bg-linear-to-r from-indigo-500 to-emerald-500 rounded-2xl blur opacity-30 group-hover:opacity-50 transition duration-1000"></div>
-
-						<div className="hero-image glass-panel p-2 rounded-2xl relative overflow-hidden">
-							<Image
-								width={1200}
-								height={800}
-								src={"/hero-section-img.svg"}
-								alt="Dashboard Preview"
-								className="rounded-xl w-full h-auto object-cover shadow-2xl"
-								priority
-								sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-							/>
-
-							<div className="absolute -bottom-6 -left-6 p-4 glass-panel rounded-xl shadow-lg animate-bounce duration-3000">
-								<div className="flex items-center gap-3">
-									<div className="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-500">
-										<svg
-											xmlns="http://www.w3.org/2000/svg"
-											width="20"
-											height="20"
-											viewBox="0 0 24 24"
-											fill="none"
-											stroke="currentColor"
-											strokeWidth="2"
-											strokeLinecap="round"
-											strokeLinejoin="round"
-											aria-label="Total Savings Icon"
-											role="img"
-										>
-											<title>Total Savings</title>
-											<path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-										</svg>
-									</div>
-									<div>
-										<p className="text-xs text-muted-foreground">
-											Total Savings
-										</p>
-										<p className="font-bold text-lg">+$2,450.00</p>
-									</div>
-								</div>
-							</div>
+				<div className="mt-6 grid w-full max-w-5xl gap-4 md:grid-cols-3 z-10">
+					<div className="rounded-3xl border border-white/10 bg-white/5 p-5 backdrop-blur-xl shadow-[0_20px_50px_rgba(79,70,229,0.12)]">
+						<div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-500/15 text-emerald-400">
+							<TrendingUp className="h-5 w-5" />
 						</div>
+						<p className="text-xs font-black uppercase tracking-[0.24em] text-muted-foreground">
+							Savings
+						</p>
+						<p className="mt-3 text-3xl font-black tracking-tight">+$2,450</p>
+						<p className="mt-2 text-sm text-muted-foreground">This month</p>
+					</div>
+
+					<div className="rounded-3xl border border-white/10 bg-white/5 p-5 backdrop-blur-xl shadow-[0_20px_50px_rgba(16,185,129,0.10)]">
+						<div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-500/15 text-indigo-400">
+							<PiggyBank className="h-5 w-5" />
+						</div>
+						<p className="text-xs font-black uppercase tracking-[0.24em] text-muted-foreground">
+							Budget
+						</p>
+						<p className="mt-3 text-3xl font-black tracking-tight">82%</p>
+						<p className="mt-2 text-sm text-muted-foreground">On target</p>
+					</div>
+
+					<div className="rounded-3xl border border-white/10 bg-white/5 p-5 backdrop-blur-xl shadow-[0_20px_50px_rgba(99,102,241,0.12)]">
+						<div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-500/15 text-violet-400">
+							<ArrowUpRight className="h-5 w-5" />
+						</div>
+						<p className="text-xs font-black uppercase tracking-[0.24em] text-muted-foreground">
+							Growth
+						</p>
+						<p className="mt-3 text-3xl font-black tracking-tight">+18.4%</p>
+						<p className="mt-2 text-sm text-muted-foreground">Quarterly</p>
+					</div>
+				</div>
+
+				<div className="mt-12 grid w-full max-w-5xl gap-4 md:grid-cols-3 z-10">
+					<div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-left backdrop-blur-xl">
+						<div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-400">
+							<CheckCircle2 className="h-5 w-5" />
+						</div>
+						<p className="text-sm font-bold text-foreground">Instant clarity</p>
+						<p className="mt-2 text-sm text-muted-foreground">
+							See your spending, trends, and budget health without digging
+							through spreadsheets.
+						</p>
+					</div>
+
+					<div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-left backdrop-blur-xl">
+						<div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-500/15 text-indigo-400">
+							<Sparkles className="h-5 w-5" />
+						</div>
+						<p className="text-sm font-bold text-foreground">
+							AI-assisted insights
+						</p>
+						<p className="mt-2 text-sm text-muted-foreground">
+							Get smarter recommendations that help you spend intentionally and
+							save more.
+						</p>
+					</div>
+
+					<div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-left backdrop-blur-xl">
+						<div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-violet-500/15 text-violet-400">
+							<ShieldCheck className="h-5 w-5" />
+						</div>
+						<p className="text-sm font-bold text-foreground">
+							Built for confidence
+						</p>
+						<p className="mt-2 text-sm text-muted-foreground">
+							Keep your finances organized, protected, and ready for the next
+							big move.
+						</p>
 					</div>
 				</div>
 			</div>

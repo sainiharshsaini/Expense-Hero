@@ -4,9 +4,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
 import { CalendarIcon, Loader2 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useEffect, useMemo } from "react";
+import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
+import type { z } from "zod";
 import type { SerializedAccount } from "@/actions/dashboard";
 import {
 	createTransaction,
@@ -40,6 +41,7 @@ type Account = SerializedAccount;
 interface Category {
 	id: string;
 	name: string;
+	type: "EXPENSE" | "INCOME";
 }
 
 interface TransactionData {
@@ -70,18 +72,18 @@ export function AddTransactionForm({
 
 	const {
 		register,
+		control,
 		handleSubmit,
 		formState: { errors },
 		watch,
 		setValue,
-		getValues,
 		reset,
-	} = useForm({
+	} = useForm<z.input<typeof transactionSchema>>({
 		resolver: zodResolver(transactionSchema),
 		defaultValues:
 			editMode && initialData
 				? {
-						type: initialData.type as "EXPENSE" | "INCOME",
+						type: initialData.type,
 						amount: initialData.amount.toString(),
 						description: initialData.description ?? "",
 						accountId: initialData.accountId,
@@ -89,43 +91,52 @@ export function AddTransactionForm({
 						date: new Date(initialData.date),
 						isRecurring: initialData.isRecurring,
 						...(initialData.recurringInterval && {
-							recurringInterval: initialData.recurringInterval as
-								| "DAILY"
-								| "WEEKLY"
-								| "MONTHLY"
-								| "YEARLY",
+							recurringInterval: initialData.recurringInterval,
 						}),
 					}
 				: {
-						type: "EXPENSE" as const,
+						type: "EXPENSE",
 						amount: "",
 						description: "",
-						accountId: accounts.find((ac: any) => ac.isDefault)?.id || "",
+						accountId: accounts.find((account) => account.isDefault)?.id || "",
 						date: new Date(),
 						isRecurring: false,
 					},
 	});
 
+	const submitTransaction = async (
+		formData: z.input<typeof transactionSchema>,
+	) => {
+		const normalizedData = {
+			...formData,
+			amount: Number.parseFloat(formData.amount),
+		} as Parameters<typeof createTransaction>[0];
+
+		if (editMode) {
+			return updateTransaction(
+				editId ?? "",
+				normalizedData as Parameters<typeof updateTransaction>[1],
+			);
+		}
+		return createTransaction(normalizedData);
+	};
+
 	const {
 		loading: transactionLoading,
 		fn: transactionFn,
 		data: transactionResult,
-	} = useFetch(editMode ? updateTransaction : createTransaction);
+	} = useFetch(submitTransaction);
 
-	const onSubmit = (data: any) => {
-		const formData = {
-			...data,
-			amount: parseFloat(data.amount),
-		};
-
-		if (editMode) {
-			transactionFn(editId, formData);
-		} else {
-			transactionFn(formData);
-		}
+	const onSubmit = (data: z.input<typeof transactionSchema>) => {
+		void transactionFn(data);
 	};
 
-	const handleScanComplete = (scannedData: any) => {
+	const handleScanComplete = (scannedData: {
+		amount: number;
+		date: Date | string;
+		description?: string;
+		category?: string;
+	}) => {
 		if (scannedData) {
 			setValue("amount", scannedData.amount.toString());
 			setValue("date", new Date(scannedData.date));
@@ -147,13 +158,26 @@ export function AddTransactionForm({
 			transactionResult.success &&
 			!transactionLoading
 		) {
+			const resultData =
+				typeof transactionResult === "object" &&
+				transactionResult !== null &&
+				"data" in transactionResult
+					? transactionResult.data
+					: null;
+			const accountId =
+				typeof resultData === "object" &&
+				resultData !== null &&
+				"accountId" in resultData
+					? String(resultData.accountId)
+					: "";
+
 			toast.success(
 				editMode
 					? "Transaction updated successfully"
 					: "Transaction created successfully",
 			);
 			reset();
-			router.push(`/account/${(transactionResult as any).data.accountId}`);
+			if (accountId) router.push(`/account/${accountId}`);
 		}
 	}, [transactionResult, transactionLoading, editMode, reset, router]);
 
@@ -161,8 +185,9 @@ export function AddTransactionForm({
 	const isRecurring = watch("isRecurring");
 	const date = watch("date");
 
-	const filteredCategories = categories.filter(
-		(category: any) => category.type === type,
+	const filteredCategories = useMemo(
+		() => categories.filter((category: Category) => category.type === type),
+		[categories, type],
 	);
 
 	return (
@@ -187,34 +212,34 @@ export function AddTransactionForm({
 						>
 							Transaction Type
 						</label>
-						<Select
-							onValueChange={(value: any) => setValue("type", value)}
-							defaultValue={type}
-						>
-							<SelectTrigger
-								id="transaction-type-select"
-								className="h-12 bg-white/5 border-white/10 focus-visible:ring-primary/20 transition-all text-lg font-medium"
-							>
-								<SelectValue placeholder="Select type" />
-							</SelectTrigger>
-							<SelectTrigger className="h-12 bg-white/5 border-white/10 focus-visible:ring-primary/20 transition-all text-lg font-medium">
-								<SelectValue placeholder="Select type" />
-							</SelectTrigger>
-							<SelectContent className="glass-panel border-white/10">
-								<SelectItem
-									value="EXPENSE"
-									className="text-red-400 font-bold focus:bg-red-400/10"
-								>
-									Expense
-								</SelectItem>
-								<SelectItem
-									value="INCOME"
-									className="text-emerald-400 font-bold focus:bg-emerald-400/10"
-								>
-									Income
-								</SelectItem>
-							</SelectContent>
-						</Select>
+						<Controller
+							name="type"
+							control={control}
+							render={({ field }) => (
+								<Select onValueChange={field.onChange} value={field.value}>
+									<SelectTrigger
+										id="transaction-type-select"
+										className="h-12 bg-white/5 border-white/10 focus-visible:ring-primary/20 transition-all text-lg font-medium"
+									>
+										<SelectValue placeholder="Select type" />
+									</SelectTrigger>
+									<SelectContent className="glass-panel border-white/10">
+										<SelectItem
+											value="EXPENSE"
+											className="text-red-400 font-bold focus:bg-red-400/10"
+										>
+											Expense
+										</SelectItem>
+										<SelectItem
+											value="INCOME"
+											className="text-emerald-400 font-bold focus:bg-emerald-400/10"
+										>
+											Income
+										</SelectItem>
+									</SelectContent>
+								</Select>
+							)}
+						/>
 						{errors.type && (
 							<p className="text-sm text-red-500 animate-in shake duration-300">
 								{errors.type.message}
@@ -257,42 +282,42 @@ export function AddTransactionForm({
 						>
 							Account
 						</label>
-						<Select
-							onValueChange={(value) => setValue("accountId", value)}
-							defaultValue={getValues("accountId")}
-						>
-							<SelectTrigger
-								id="account-select"
-								className="h-12 bg-white/5 border-white/10 focus-visible:ring-primary/20 transition-all font-medium"
-							>
-								<SelectValue placeholder="Select account" />
-							</SelectTrigger>
-							<SelectTrigger className="h-12 bg-white/5 border-white/10 focus-visible:ring-primary/20 transition-all font-medium">
-								<SelectValue placeholder="Select account" />
-							</SelectTrigger>
-							<SelectContent className="glass-panel border-white/10">
-								{accounts.map((account: any) => (
-									<SelectItem
-										key={account.id}
-										value={account.id}
-										className="font-medium"
+						<Controller
+							name="accountId"
+							control={control}
+							render={({ field }) => (
+								<Select onValueChange={field.onChange} value={field.value}>
+									<SelectTrigger
+										id="account-select"
+										className="h-12 bg-white/5 border-white/10 focus-visible:ring-primary/20 transition-all font-medium"
 									>
-										{account.name}{" "}
-										<span className="text-muted-foreground ml-2">
-											(${parseFloat(account.balance).toFixed(2)})
-										</span>
-									</SelectItem>
-								))}
-								<CreateAccountDrawer>
-									<Button
-										variant="ghost"
-										className="relative flex w-full cursor-default select-none items-center rounded-lg py-3 pl-8 pr-2 text-sm outline-none hover:bg-primary/20 hover:text-primary-foreground font-semibold"
-									>
-										+ Create New Account
-									</Button>
-								</CreateAccountDrawer>
-							</SelectContent>
-						</Select>
+										<SelectValue placeholder="Select account" />
+									</SelectTrigger>
+									<SelectContent className="glass-panel border-white/10">
+										{accounts.map((account: Account) => (
+											<SelectItem
+												key={account.id}
+												value={account.id}
+												className="font-medium"
+											>
+												{account.name}{" "}
+												<span className="text-muted-foreground ml-2">
+													(${account.balance.toFixed(2)})
+												</span>
+											</SelectItem>
+										))}
+										<CreateAccountDrawer>
+											<Button
+												variant="ghost"
+												className="relative flex w-full cursor-default select-none items-center rounded-lg py-3 pl-8 pr-2 text-sm outline-none hover:bg-primary/20 hover:text-primary-foreground font-semibold"
+											>
+												+ Create New Account
+											</Button>
+										</CreateAccountDrawer>
+									</SelectContent>
+								</Select>
+							)}
+						/>
 						{errors.accountId && (
 							<p className="text-sm text-red-500 animate-in shake duration-300">
 								{errors.accountId.message}
@@ -307,31 +332,31 @@ export function AddTransactionForm({
 						>
 							Category
 						</label>
-						<Select
-							onValueChange={(value) => setValue("category", value)}
-							defaultValue={getValues("category")}
-						>
-							<SelectTrigger
-								id="category-select"
-								className="h-12 bg-white/5 border-white/10 focus-visible:ring-primary/20 transition-all font-medium"
-							>
-								<SelectValue placeholder="Select category" />
-							</SelectTrigger>
-							<SelectTrigger className="h-12 bg-white/5 border-white/10 focus-visible:ring-primary/20 transition-all font-medium">
-								<SelectValue placeholder="Select category" />
-							</SelectTrigger>
-							<SelectContent className="glass-panel border-white/10 max-h-[300px]">
-								{filteredCategories.map((category: any) => (
-									<SelectItem
-										key={category.id}
-										value={category.id}
-										className="font-medium"
+						<Controller
+							name="category"
+							control={control}
+							render={({ field }) => (
+								<Select onValueChange={field.onChange} value={field.value}>
+									<SelectTrigger
+										id="category-select"
+										className="h-12 bg-white/5 border-white/10 focus-visible:ring-primary/20 transition-all font-medium"
 									>
-										{category.name}
-									</SelectItem>
-								))}
-							</SelectContent>
-						</Select>
+										<SelectValue placeholder="Select category" />
+									</SelectTrigger>
+									<SelectContent className="glass-panel border-white/10 max-h-[300px]">
+										{filteredCategories.map((category: Category) => (
+											<SelectItem
+												key={category.id}
+												value={category.id}
+												className="font-medium"
+											>
+												{category.name}
+											</SelectItem>
+										))}
+									</SelectContent>
+								</Select>
+							)}
+						/>
 						{errors.category && (
 							<p className="text-sm text-red-500 animate-in shake duration-300">
 								{errors.category.message}
@@ -369,7 +394,9 @@ export function AddTransactionForm({
 								<Calendar
 									mode="single"
 									selected={date}
-									onSelect={(date: any) => setValue("date", date)}
+									onSelect={(selectedDate: Date | undefined) =>
+										setValue("date", selectedDate ?? new Date())
+									}
 									disabled={(date) =>
 										date > new Date() || date < new Date("1900-01-01")
 									}
@@ -432,33 +459,31 @@ export function AddTransactionForm({
 						>
 							Recurring Interval
 						</label>
-						<Select
-							onValueChange={(value) =>
-								setValue(
-									"recurringInterval",
-									value as "DAILY" | "WEEKLY" | "MONTHLY" | "YEARLY",
-								)
-							}
-							defaultValue={getValues("recurringInterval")}
-						>
-							<SelectTrigger className="h-12 bg-white/5 border-white/10 focus-visible:ring-primary/20 transition-all font-medium">
-								<SelectValue placeholder="Select interval" />
-							</SelectTrigger>
-							<SelectContent className="glass-panel border-white/10">
-								<SelectItem value="DAILY" className="font-medium">
-									Daily
-								</SelectItem>
-								<SelectItem value="WEEKLY" className="font-medium">
-									Weekly
-								</SelectItem>
-								<SelectItem value="MONTHLY" className="font-medium">
-									Monthly
-								</SelectItem>
-								<SelectItem value="YEARLY" className="font-medium">
-									Yearly
-								</SelectItem>
-							</SelectContent>
-						</Select>
+						<Controller
+							name="recurringInterval"
+							control={control}
+							render={({ field }) => (
+								<Select onValueChange={field.onChange} value={field.value}>
+									<SelectTrigger className="h-12 bg-white/5 border-white/10 focus-visible:ring-primary/20 transition-all font-medium">
+										<SelectValue placeholder="Select interval" />
+									</SelectTrigger>
+									<SelectContent className="glass-panel border-white/10">
+										<SelectItem value="DAILY" className="font-medium">
+											Daily
+										</SelectItem>
+										<SelectItem value="WEEKLY" className="font-medium">
+											Weekly
+										</SelectItem>
+										<SelectItem value="MONTHLY" className="font-medium">
+											Monthly
+										</SelectItem>
+										<SelectItem value="YEARLY" className="font-medium">
+											Yearly
+										</SelectItem>
+									</SelectContent>
+								</Select>
+							)}
+						/>
 						{errors.recurringInterval && (
 							<p className="text-sm text-red-500 animate-in shake duration-300">
 								{errors.recurringInterval.message}
