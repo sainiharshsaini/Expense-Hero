@@ -66,45 +66,87 @@ function useAnimatedCounter(targetValue: number, duration = 1000) {
 }
 
 export function StatsCards({ accounts, transactions }: StatsCardsProps) {
-	const now = new Date();
-	const currentMonth = now.getMonth();
-	const currentYear = now.getFullYear();
-	const lastMonth = currentMonth === 0 ? 11 : currentMonth - 1;
-	const lastMonthYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+	const [mounted, setMounted] = useState(false);
+
+	useEffect(() => {
+		setMounted(true);
+	}, []);
 
 	const totalBalance = accounts.reduce((sum, acc) => {
 		return sum + parseFloat(String(acc.balance));
 	}, 0);
 
-	const currentMonthTransactions = transactions.filter((t) => {
-		const date = t.date instanceof Date ? t.date : new Date(t.date);
-		return (
-			date.getMonth() === currentMonth && date.getFullYear() === currentYear
-		);
-	});
+	// Calculate date-based values only when mounted
+	const {
+		currentMonthIncome,
+		currentMonthExpenses,
+		lastMonthIncome,
+		lastMonthExpenses,
+		categorySpending,
+	} = mounted
+		? (() => {
+				const now = new Date();
+				const currentMonth = now.getMonth();
+				const currentYear = now.getFullYear();
+				const lastMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+				const lastMonthYear = currentMonth === 0 ? currentYear - 1 : currentYear;
 
-	const lastMonthTransactions = transactions.filter((t) => {
-		const date = t.date instanceof Date ? t.date : new Date(t.date);
-		return (
-			date.getMonth() === lastMonth && date.getFullYear() === lastMonthYear
-		);
-	});
+				const currentMonthTransactions = transactions.filter((t) => {
+					const date = t.date instanceof Date ? t.date : new Date(t.date);
+					return (
+						date.getMonth() === currentMonth && date.getFullYear() === currentYear
+					);
+				});
 
-	const currentMonthIncome = currentMonthTransactions
-		.filter((t) => t.type === "INCOME")
-		.reduce((sum, t) => sum + t.amount, 0);
+				const lastMonthTransactions = transactions.filter((t) => {
+					const date = t.date instanceof Date ? t.date : new Date(t.date);
+					return (
+						date.getMonth() === lastMonth && date.getFullYear() === lastMonthYear
+					);
+				});
 
-	const currentMonthExpenses = currentMonthTransactions
-		.filter((t) => t.type === "EXPENSE")
-		.reduce((sum, t) => sum + t.amount, 0);
+				const currMonthIncome = currentMonthTransactions
+					.filter((t) => t.type === "INCOME")
+					.reduce((sum, t) => sum + t.amount, 0);
 
-	const lastMonthIncome = lastMonthTransactions
-		.filter((t) => t.type === "INCOME")
-		.reduce((sum, t) => sum + t.amount, 0);
+				const currMonthExpenses = currentMonthTransactions
+					.filter((t) => t.type === "EXPENSE")
+					.reduce((sum, t) => sum + t.amount, 0);
 
-	const lastMonthExpenses = lastMonthTransactions
-		.filter((t) => t.type === "EXPENSE")
-		.reduce((sum, t) => sum + t.amount, 0);
+				const lastMonthInc = lastMonthTransactions
+					.filter((t) => t.type === "INCOME")
+					.reduce((sum, t) => sum + t.amount, 0);
+
+				const lastMonthExp = lastMonthTransactions
+					.filter((t) => t.type === "EXPENSE")
+					.reduce((sum, t) => sum + t.amount, 0);
+
+				const categorySpend = currentMonthTransactions
+					.filter((t) => t.type === "EXPENSE")
+					.reduce<Record<string, number>>((acc, t) => {
+						acc[t.category] = (acc[t.category] || 0) + t.amount;
+						return acc;
+					}, {});
+
+				return {
+					currentMonthIncome: currMonthIncome,
+					currentMonthExpenses: currMonthExpenses,
+					lastMonthIncome: lastMonthInc,
+					lastMonthExpenses: lastMonthExp,
+					categorySpending: categorySpend,
+				};
+			})()
+		: {
+				currentMonthIncome: 0,
+				currentMonthExpenses: 0,
+				lastMonthIncome: 0,
+				lastMonthExpenses: 0,
+				categorySpending: {},
+			};
+
+	const animatedBalance = useAnimatedCounter(mounted ? Math.floor(totalBalance) : 0);
+	const animatedIncome = useAnimatedCounter(mounted ? Math.floor(currentMonthIncome) : 0);
+	const animatedExpenses = useAnimatedCounter(mounted ? Math.floor(currentMonthExpenses) : 0);
 
 	const incomeTrend =
 		lastMonthIncome > 0
@@ -124,20 +166,23 @@ export function StatsCards({ accounts, transactions }: StatsCardsProps) {
 	const savingsRate =
 		currentMonthIncome > 0 ? (netSavings / currentMonthIncome) * 100 : 0;
 
-	const categorySpending = currentMonthTransactions
-		.filter((t) => t.type === "EXPENSE")
-		.reduce<Record<string, number>>((acc, t) => {
-			acc[t.category] = (acc[t.category] || 0) + t.amount;
-			return acc;
-		}, {});
-
 	const topCategory = Object.entries(categorySpending).sort(
 		([, a], [, b]) => b - a,
 	)[0];
 
-	const animatedBalance = useAnimatedCounter(Math.floor(totalBalance));
-	const animatedIncome = useAnimatedCounter(Math.floor(currentMonthIncome));
-	const animatedExpenses = useAnimatedCounter(Math.floor(currentMonthExpenses));
+	if (!mounted) {
+		return (
+			<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+				{[1, 2, 3, 4].map((i) => (
+					<div key={i} className="stat-card">
+						<div className="h-10 w-10 bg-muted rounded-lg animate-pulse mb-4" />
+						<div className="h-8 bg-muted rounded animate-pulse mb-2" />
+						<div className="h-4 bg-muted rounded animate-pulse" />
+					</div>
+				))}
+			</div>
+		);
+	}
 
 	return (
 		<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

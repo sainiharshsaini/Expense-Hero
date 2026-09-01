@@ -1,226 +1,299 @@
 "use client";
 
-import { AlertTriangle, Check, Pencil, Target, X } from "lucide-react";
+import {
+  AlertCircle,
+  Check,
+  Pencil,
+  RefreshCw,
+  TrendingDown,
+  X,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { updateBudget } from "@/actions/budget";
+import { getCurrentBudget, updateBudget } from "@/actions/budget";
 import { Button } from "@/components/ui/button";
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import useFetch from "@/hooks/useFetch";
 import { cn } from "@/lib/utils";
 
 type Budget = {
-	amount: number;
+  amount: number;
 };
 
 type BudgetProgressProps = {
-	initialBudget: Budget | null;
-	currentExpenses: number;
+  initialBudget: Budget | null;
+  accountId: string;
 };
 
-const BudgetProgress = ({
-	initialBudget,
-	currentExpenses,
-}: BudgetProgressProps) => {
-	const [isEditing, setIsEditing] = useState(false);
-	const [newBudget, setNewBudget] = useState(
-		initialBudget?.amount?.toString() || "",
-	);
+const BudgetProgress = ({ initialBudget, accountId }: BudgetProgressProps) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [newBudget, setNewBudget] = useState(
+    initialBudget?.amount?.toString() || "",
+  );
+  const [mounted, setMounted] = useState(false);
+  const [currentExpenses, setCurrentExpenses] = useState(0);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
-	const { loading, fn: updateBudgetFn, data, error } = useFetch(updateBudget);
+  const { loading, fn: updateBudgetFn, data, error } = useFetch(updateBudget);
 
-	const percentUsed = initialBudget
-		? (currentExpenses / initialBudget.amount) * 100
-		: 0;
+  // Fetch current expenses from server
+  const fetchCurrentExpenses = async () => {
+    try {
+      setIsRefreshing(true);
+      const budgetData = await getCurrentBudget(accountId);
+      setCurrentExpenses(budgetData.currentExpenses);
+    } catch (err) {
+      console.error("Failed to fetch expenses:", err);
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
 
-	const handleUpdateBudget = async () => {
-		const amount = parseFloat(newBudget);
+  useEffect(() => {
+    setMounted(true);
+    fetchCurrentExpenses();
 
-		if (Number.isNaN(amount) || amount <= 0) {
-			toast.error("Please enter a valid amount");
-			return;
-		}
+    // Refresh expenses every 5 seconds to keep it updated
+    const interval = setInterval(fetchCurrentExpenses, 5000);
 
-		await updateBudgetFn(amount);
-	};
+    return () => clearInterval(interval);
+  }, [accountId]);
 
-	const handleCancel = () => {
-		setNewBudget(initialBudget?.amount?.toString() || "");
-		setIsEditing(false);
-	};
+  const percentUsed = initialBudget
+    ? (currentExpenses / initialBudget.amount) * 100
+    : 0;
 
-	useEffect(() => {
-		if (
-			typeof data === "object" &&
-			data !== null &&
-			"success" in data &&
-			(data as { success: boolean }).success
-		) {
-			setIsEditing(false);
-			toast.success("Budget updated successfully");
-		}
-	}, [data]);
+  const handleUpdateBudget = async () => {
+    const amount = parseFloat(newBudget);
 
-	useEffect(() => {
-		if (error) {
-			toast.error((error as Error).message || "Failed to update budget");
-		}
-	}, [error]);
+    if (Number.isNaN(amount) || amount <= 0) {
+      toast.error("Please enter a valid amount");
+      return;
+    }
 
-	const progressColor =
-		percentUsed >= 90
-			? "bg-red-500"
-			: percentUsed >= 75
-				? "bg-amber-500"
-				: "bg-emerald-500";
+    await updateBudgetFn(amount);
+  };
 
-	return (
-		<Card className="glass-panel border-white/10 shadow-2xl relative overflow-hidden animate-in fade-in slide-in-from-bottom-5 duration-700">
-			<div className="absolute top-0 right-0 p-4 opacity-[0.03]">
-				{percentUsed >= 100 ? (
-					<AlertTriangle className="h-24 w-24 rotate-12 text-red-500" />
-				) : (
-					<Target className="h-24 w-24 rotate-12 text-primary" />
-				)}
-			</div>
+  const handleCancel = () => {
+    setNewBudget(initialBudget?.amount?.toString() || "");
+    setIsEditing(false);
+  };
 
-			<CardHeader className="flex flex-row items-center justify-between pb-4">
-				<div className="flex-1 space-y-1">
-					<CardTitle className="text-xl font-black tracking-tight flex items-center gap-2">
-						Monthly Budget
-						{!isEditing && initialBudget && (
-							<Button
-								variant="ghost"
-								size="icon"
-								onClick={() => setIsEditing(true)}
-								className="h-8 w-8 rounded-full hover:bg-white/10 transition-colors"
-							>
-								<Pencil className="h-4 w-4" />
-							</Button>
-						)}
-					</CardTitle>
+  useEffect(() => {
+    if (
+      typeof data === "object" &&
+      data !== null &&
+      "success" in data &&
+      (data as { success: boolean }).success
+    ) {
+      setIsEditing(false);
+      toast.success("Budget updated successfully");
+      fetchCurrentExpenses();
+    }
+  }, [data]);
 
-					<div className="flex items-center gap-2">
-						{isEditing ? (
-							<div className="flex items-center gap-3 animate-in fade-in zoom-in duration-300">
-								<div className="relative group">
-									<Input
-										type="number"
-										value={newBudget}
-										onChange={(e) => setNewBudget(e.target.value)}
-										className="h-10 w-36 bg-white/5 border-white/10 rounded-xl font-bold pr-8 transition-all focus:ring-primary/20"
-										placeholder="0.00"
-										autoFocus
-										disabled={loading}
-									/>
-									<span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-black text-muted-foreground">
-										$
-									</span>
-								</div>
-								<div className="flex gap-1">
-									<Button
-										variant="ghost"
-										size="icon"
-										onClick={handleUpdateBudget}
-										disabled={loading}
-										className="h-10 w-10 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400"
-									>
-										<Check className="h-5 w-5" />
-									</Button>
-									<Button
-										variant="ghost"
-										size="icon"
-										onClick={handleCancel}
-										disabled={loading}
-										className="h-10 w-10 rounded-xl bg-red-400/10 hover:bg-red-400/20 text-red-400"
-									>
-										<X className="h-5 w-5" />
-									</Button>
-								</div>
-							</div>
-						) : (
-							<CardDescription className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-								{initialBudget ? (
-									<>
-										<span className="text-foreground font-black">
-											${currentExpenses.toLocaleString()}
-										</span>
-										<span>of</span>
-										<span className="text-primary font-black">
-											${initialBudget.amount.toLocaleString()}
-										</span>
-										<span>spent this month</span>
-									</>
-								) : (
-									<Button
-										variant="link"
-										className="p-0 h-auto font-black text-primary uppercase text-xs tracking-widest"
-										onClick={() => setIsEditing(true)}
-									>
-										+ Set Monthly Target
-									</Button>
-								)}
-							</CardDescription>
-						)}
-					</div>
-				</div>
-			</CardHeader>
-			<CardContent className="pt-2">
-				{initialBudget && (
-					<div className="space-y-4">
-						<div className="relative pt-1">
-							<Progress
-								value={percentUsed}
-								className={cn("h-3 rounded-full bg-white/5", progressColor)}
-							/>
-							<div className="absolute inset-0 h-3 rounded-full bg-white/5 border border-white/5 pointer-events-none" />
-						</div>
-						<div className="flex justify-between items-center">
-							<div className="flex items-center gap-2">
-								<div
-									className={cn(
-										"h-2 w-2 rounded-full animate-pulse",
-										progressColor.replace("bg-", "text-"),
-									)}
-								/>
-								<span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">
-									{percentUsed >= 100 ? "Limit Reached" : "Budget Health"}
-								</span>
-							</div>
-							<p
-								className={cn(
-									"text-sm font-black tabular-nums",
-									percentUsed >= 90 ? "text-red-400" : "text-foreground",
-								)}
-							>
-								{percentUsed.toFixed(1)}% used
-							</p>
-						</div>
-					</div>
-				)}
-			</CardContent>
-			{initialBudget && percentUsed >= 90 && (
-				<div className="px-6 pb-6 animate-in slide-in-from-top-2 duration-500">
-					<div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center gap-3">
-						<div className="h-8 w-8 rounded-lg bg-red-500/20 flex items-center justify-center">
-							<AlertTriangle className="h-5 w-5 text-red-500" />
-						</div>
-						<p className="text-[10px] font-black text-red-200 uppercase tracking-wider leading-tight">
-							Critical spending alert. You are nearing your monthly limit.
-						</p>
-					</div>
-				</div>
-			)}
-		</Card>
-	);
+  useEffect(() => {
+    if (error) {
+      toast.error((error as Error).message || "Failed to update budget");
+    }
+  }, [error]);
+
+  const percentUsed100 = Math.min(percentUsed, 100);
+  const isNearing = percentUsed >= 75;
+  const isExceeded = percentUsed >= 100;
+
+  const getProgressColor = () => {
+    if (isExceeded) return "bg-gradient-to-r from-red-500 to-red-600";
+    if (isNearing) return "bg-gradient-to-r from-amber-500 to-amber-600";
+    return "bg-gradient-to-r from-emerald-500 to-emerald-600";
+  };
+
+  const getStatusColor = () => {
+    if (isExceeded) return "text-red-600";
+    if (isNearing) return "text-amber-600";
+    return "text-emerald-600";
+  };
+
+  if (!mounted) {
+    return (
+      <Card className="border-0 shadow-sm hover:shadow-md transition-shadow duration-300 bg-white">
+        <CardContent className="p-6">
+          <div className="h-24 bg-gray-100 rounded-lg animate-pulse" />
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Card className="border-0 shadow-sm hover:shadow-md transition-shadow duration-300 bg-white">
+      <CardContent className="p-6">
+        {/* Header */}
+        <div className="flex items-start justify-between mb-6">
+          <div className="flex-1">
+            <div className="flex items-center gap-2 mb-1">
+              <div className="p-2 bg-blue-50 rounded-lg">
+                <TrendingDown className="h-4 w-4 text-blue-600" />
+              </div>
+              <h3 className="text-sm font-semibold text-gray-600">
+                Monthly Budget
+              </h3>
+            </div>
+
+            {!isEditing && initialBudget ? (
+              <div className="mt-2">
+                <div className="flex items-baseline gap-1.5">
+                  <span className="text-3xl font-bold text-gray-900">
+                    ${currentExpenses.toLocaleString()}
+                  </span>
+                  <span className="text-gray-400 text-sm font-medium">
+                    of ${initialBudget.amount.toLocaleString()}
+                  </span>
+                </div>
+              </div>
+            ) : isEditing ? (
+              <div className="flex items-center gap-2 mt-3">
+                <div className="relative flex-1 max-w-xs">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-semibold">
+                    $
+                  </span>
+                  <Input
+                    type="number"
+                    value={newBudget}
+                    onChange={(e) => setNewBudget(e.target.value)}
+                    className="w-full h-10 bg-gray-50 border border-gray-200 rounded-lg pl-7 text-gray-900 font-semibold focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="0.00"
+                    autoFocus
+                    disabled={loading}
+                  />
+                </div>
+                <Button
+                  size="sm"
+                  onClick={handleUpdateBudget}
+                  disabled={loading}
+                  className="h-10 px-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg"
+                >
+                  <Check className="h-4 w-4" />
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleCancel}
+                  disabled={loading}
+                  className="h-10 px-3 border-gray-200 text-gray-600 hover:bg-gray-50 rounded-lg"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            ) : (
+              <Button
+                variant="link"
+                onClick={() => setIsEditing(true)}
+                className="p-0 h-auto text-blue-600 hover:text-blue-700 text-sm font-semibold mt-2"
+              >
+                + Set budget
+              </Button>
+            )}
+          </div>
+          <div className="flex items-center gap-2">
+            {!isEditing && initialBudget && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={fetchCurrentExpenses}
+                disabled={isRefreshing}
+                className="h-8 w-8 p-0 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg"
+                title="Refresh budget data"
+              >
+                <RefreshCw
+                  className={cn("h-4 w-4", isRefreshing && "animate-spin")}
+                />
+              </Button>
+            )}
+            {!isEditing && initialBudget && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsEditing(true)}
+                className="h-8 w-8 p-0 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg"
+              >
+                <Pencil className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
+        </div>
+
+        {/* Progress Section */}
+        {initialBudget && (
+          <>
+            <div className="mb-4">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                  Progress
+                </span>
+                <span className={cn("text-sm font-bold", getStatusColor())}>
+                  {percentUsed100.toFixed(0)}%
+                </span>
+              </div>
+              <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                <div
+                  className={cn(
+                    "h-full rounded-full transition-all duration-500",
+                    getProgressColor(),
+                  )}
+                  style={{ width: `${percentUsed100}%` }}
+                />
+              </div>
+            </div>
+
+            {/* Status Message */}
+            <div className="flex items-center justify-between pt-2">
+              <div className="flex items-center gap-2">
+                <div
+                  className={cn(
+                    "h-2 w-2 rounded-full",
+                    isExceeded
+                      ? "bg-red-500"
+                      : isNearing
+                        ? "bg-amber-500"
+                        : "bg-emerald-500",
+                  )}
+                />
+                <span className="text-xs font-medium text-gray-600">
+                  {isExceeded
+                    ? "Budget exceeded"
+                    : isNearing
+                      ? "Approaching limit"
+                      : "Good standing"}
+                </span>
+              </div>
+              {isExceeded && (
+                <div className="flex items-center gap-1 text-red-600">
+                  <AlertCircle className="h-4 w-4" />
+                  <span className="text-xs font-semibold">Over limit</span>
+                </div>
+              )}
+            </div>
+
+            {/* Remaining Amount */}
+            <div className="mt-4 pt-4 border-t border-gray-100">
+              <div className="text-xs text-gray-600">
+                <span className="font-medium">
+                  $
+                  {Math.max(
+                    0,
+                    initialBudget.amount - currentExpenses,
+                  ).toLocaleString()}
+                </span>
+                <span className="text-gray-500 ml-1">remaining</span>
+              </div>
+            </div>
+          </>
+        )}
+      </CardContent>
+    </Card>
+  );
 };
 
 export default BudgetProgress;
