@@ -42,7 +42,7 @@ export function ReceiptScanner({ onScanComplete }: ReceiptScannerProps) {
 			onScanComplete(scannedData);
 			toast.success("Receipt scanned successfully");
 		}
-	}, [scanReceiptLoading, scannedData, onScanComplete]);
+	}, [scanReceiptLoading, scannedData]);
 
 	return (
 		<div className="flex items-center gap-4">

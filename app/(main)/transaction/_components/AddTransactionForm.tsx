@@ -179,7 +179,7 @@ export function AddTransactionForm({
 			reset();
 			if (accountId) router.push(`/account/${accountId}`);
 		}
-	}, [transactionResult, transactionLoading, editMode, reset, router]);
+	}, [transactionResult, transactionLoading, editMode]);
 
 	const type = watch("type");
 	const isRecurring = watch("isRecurring");
